@@ -3,17 +3,43 @@
 * Author: Jean-Philippe Drecourt
 */
 
+// Dependencies
+// ----------------------------------------------------------------------------
+let $ = require('jquery');
+
+// Data
+// ----------------------------------------------------------------------------
+// Poem as a set of strings
 import {poem} from './data';
 
-let greet = (divId, greeting) => {
-  const elt = document.getElementById(divId);
-  elt.innerText = greeting;
+
+// Visualisation Functions
+// ----------------------------------------------------------------------------
+
+// Display HTML into a container with a given Id
+let htmlToId = (divId, html) => {
+  $('#' + divId).html(html);
 };
 
-let stringify = (arrayOfStrings) => {
-  return arrayOfStrings.reduce((prev, curr) => {
-    return prev + '\n' + curr;
-  });
+// Turns the poem array into divs with class 'verse'
+let versify = (arrayOfStrings) => {
+  return '<div class="verse">' +
+    arrayOfStrings.reduce((prev, curr) => {
+      return prev + '</div><div class="verse">' + curr;
+    }) + '</div>';
 };
 
-greet('greeting', stringify(poem));
+// Data processing functions
+// ---------------------------------------------------------------------------
+
+// Concatenate a string into an array of lowerccase words without punctuation
+// Keeps - and '
+let stringToWords = (string) => {
+  return string
+    .replace(/[^a-zA-Z0-9\'\-]+/g,' ')
+    .toLowerCase()
+    .trim()
+    .split(' ');
+};
+
+htmlToId('poem', versify(poem));

@@ -16,6 +16,11 @@ import {poem} from './data';
 // ----------------------------------------------------------------------------
 let $poem = $('#poem');
 
+// Global variables
+// ----------------------------------------------------------------------------
+// Positions of the various words in the poem
+let wordPositions = {};
+
 // Visualisation Functions
 // ----------------------------------------------------------------------------
 
@@ -41,15 +46,16 @@ let stringToWords = (string) => {
 };
 
 // Crawls the jquery $object and creates a span around each word of the word
-// list. The span gets a class word_index
-let spanify = ($object, words) => {
+// list. The span gets two classes [spanClass] and [spanClass]_[i] with i the
+// index of the given word
+let spanify = ($object, words, spanClass='word') => {
   // let sortedWords = sortPerLength(words);
   words.forEach((word, index) => {
     // Only match entire words outside of HTML tags
     // http://stackoverflow.com/questions/26951003/javascript-replace-all-but-only-outside-html-tags
     let regEx = new RegExp("(\\b" + word + "\\b)(?!([^<]+)?>)", 'ig');
     $object.html($object.html().replace(regEx, (x) => {
-      return `<span class='word word${index}'>${x}</span>`;
+      return `<span class='${spanClass} word_${index}'>${x}</span>`;
     }));
   });
 };
@@ -57,6 +63,22 @@ let spanify = ($object, words) => {
 // Extracts unique values of the array
 let uniqueValues = (array) => {
   return array.filter((v, i, a) => a.indexOf(v) === i);
+};
+
+// Create a list of the position of elements created by spannify
+let eltPosition = (words, eltClass='word') => {
+  let positions = {};
+  words.forEach((word, index) => {
+    $(`.${eltClass}.${eltClass}_${index}`).each( (i, domObject) => {
+      if (positions.hasOwnProperty(words[index])) {
+        positions[words[index]].push($(domObject).offset());
+      } else {
+        positions[words[index]] = [$(domObject).offset()];
+      }
+    });
+  });
+  console.log(positions);
+  return positions;
 };
 
 // Main execution
@@ -72,3 +94,9 @@ poem.forEach((verse) => {
 });
 words = uniqueValues(words);
 spanify($poem, words);
+wordPositions = eltPosition(words);
+
+// Update word positions on resize
+$( window ).resize( () => {
+  wordPositions = eltPosition(words);
+});

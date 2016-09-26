@@ -44,10 +44,12 @@ let stringToWords = (string) => {
 // list. The span gets a class word_index
 let spanify = ($object, words) => {
   words.forEach((word, index) => {
-    let regEx = new RegExp(word, 'ig');
-    $object.html().replace(regEx, (x) => {
-      return `<span class='word_${index}>${x}</span>`;
-    });
+    // Only match words outside of HTML tags
+    // http://stackoverflow.com/questions/26951003/javascript-replace-all-but-only-outside-html-tags
+    let regEx = new RegExp("(" + word + ")(?!([^<]+)?>)", 'ig');
+    $object.html($object.html().replace(regEx, (x) => {
+      return `<span class='word_${index}'>${x}</span>`;
+    }));
   });
 };
 
@@ -68,5 +70,4 @@ poem.forEach((verse) => {
   words = words.concat(stringToWords(verse));
 });
 words = uniqueValues(words);
-console.log(words);
 spanify($poem, words);

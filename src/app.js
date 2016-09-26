@@ -43,12 +43,13 @@ let stringToWords = (string) => {
 // Crawls the jquery $object and creates a span around each word of the word
 // list. The span gets a class word_index
 let spanify = ($object, words) => {
+  // let sortedWords = sortPerLength(words);
   words.forEach((word, index) => {
-    // Only match words outside of HTML tags
+    // Only match entire words outside of HTML tags
     // http://stackoverflow.com/questions/26951003/javascript-replace-all-but-only-outside-html-tags
-    let regEx = new RegExp("(" + word + ")(?!([^<]+)?>)", 'ig');
+    let regEx = new RegExp("(\\b" + word + "\\b)(?!([^<]+)?>)", 'ig');
     $object.html($object.html().replace(regEx, (x) => {
-      return `<span class='word_${index}'>${x}</span>`;
+      return `<span class='word word${index}'>${x}</span>`;
     }));
   });
 };

@@ -21,6 +21,8 @@ let $poem = $('#poem');
 // ----------------------------------------------------------------------------
 // Positions of the various words in the poem
 let wordPositions = {};
+// Spinning worlds
+let worlds = [];
 
 // Visualisation Functions
 // ----------------------------------------------------------------------------
@@ -31,6 +33,18 @@ let versify = (arrayOfStrings) => {
     arrayOfStrings.reduce((prev, curr) => {
       return prev + '</div><div class="verse">' + curr;
     }) + '</div>';
+};
+
+// Create a new moving object with a given initial position and a class name
+// Returns a jQuery object
+let $newObject = (left, top, objectClass='', parent='body') => {
+  let $object = $('<div></div>').appendTo(parent);
+  $object.addClass(objectClass);
+  $object.offset({
+    'left': left,
+    'top': top
+  });
+  return $object;
 };
 
 // Data processing functions
@@ -106,12 +120,23 @@ let sketch = function( p ) {
     let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
     canvas.id = 'MyCanvas';
     canvas.parent('canvasHolder');
+    worlds.push($newObject(50, 50, 'world', '.poemContainer'));
+    worlds.push($newObject(200, 150, 'world', '.poemContainer'));
+    worlds[1].css({
+      'background': 'green'
+    });
   };
 
   p.draw = function() {
     p.background(0,0,0);
     p.fill(255);
     p.rect(p.mouseX,p.mouseY,50,50);
+    worlds.forEach(($w, index) => {
+      $w.offset({
+        'left': ($w.offset().left + 5 * (index + 1)) % p.windowWidth,
+        'top': $w.offset().top
+      });
+    });
   };
 };
 let myp5 = new p5(sketch);

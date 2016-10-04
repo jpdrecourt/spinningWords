@@ -6,6 +6,7 @@
 // Dependencies
 // ----------------------------------------------------------------------------
 let $ = require('jquery');
+let p5 = require('p5');
 
 // Data
 // ----------------------------------------------------------------------------
@@ -77,14 +78,13 @@ let eltPosition = (words, eltClass='word') => {
       }
     });
   });
-  console.log(positions);
   return positions;
 };
 
 // Main execution
 // ----------------------------------------------------------------------------
-
 // Display the poem
+
 $poem.html(versify(poem));
 
 // Identify the position of the words
@@ -95,6 +95,26 @@ poem.forEach((verse) => {
 words = uniqueValues(words);
 spanify($poem, words);
 wordPositions = eltPosition(words);
+
+// p5 attempt
+let sketch = function( p ) {
+
+  var x = 100;
+  var y = 100;
+
+  p.setup = function() {
+    let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+    canvas.id = 'MyCanvas';
+    canvas.parent('canvasHolder');
+  };
+
+  p.draw = function() {
+    p.background(0,0,0);
+    p.fill(255);
+    p.rect(p.mouseX,p.mouseY,50,50);
+  };
+};
+let myp5 = new p5(sketch);
 
 // Update word positions on resize
 $( window ).resize( () => {

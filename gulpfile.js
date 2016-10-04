@@ -21,7 +21,8 @@ var scssPages = ['src/*.scss']; // CSS pages to watch
 // They'll be bundled once and for all in 'vendor.js'
 // In production, they'll be included in 'bundle.js'
 var dependencies = [
-  'jquery'
+  'jquery',
+  'p5'
 ];
 // Count of the times a tasks refires (with gulp.watch)
 var scriptsCount = 0;

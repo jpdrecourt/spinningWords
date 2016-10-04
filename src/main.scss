@@ -2,9 +2,11 @@ body
   background: black
   color: white
   font-family: helvetica, sans-serif
+  margin: 0
 
-.poem-container
-  background: white
+.poemContainer
+  position: absolute
+  background: transparent
   margin: auto
   width: 50%
   height: 500px
@@ -12,9 +14,22 @@ body
   justify-content: center
   align-items: center
 
+.MyCanvas
+  position: absolute
+  top: 0
+  left: 0
+
 #poem
   font-size: 1.3em
   line-height: 130%
-  background: #eee
+  background: transparent
   width: 50%
-  color: darkblue
+  color: lightgrey
+  z-index: 1
+
+.world
+  border-radius: 50%
+  background: red
+  position: absolute
+  height: 50px
+  width: 50px

@@ -47,6 +47,26 @@ let $newObject = (left, top, objectClass='', parent='body') => {
   return $object;
 };
 
+// Make the object orbit around a point as an jQuery coordinate object from its current position at a given orbital speed in frames
+let orbitObject = ($object, centre, speed) => {
+  let dTheta = 2 * Math.PI / speed,
+    origin = $object.offset();
+  $object.offset({
+    'left': centre.left +
+      (origin.left - centre.left) * Math.cos(dTheta) -
+      (origin.top - centre.top) * Math.sin(dTheta),
+    'top' : centre.top +
+      (origin.top - centre.top) * Math.cos(dTheta) +
+      (origin.left - centre.left) * Math.sin(dTheta)
+  });
+};
+
+// Calculate the distance between two two jQuery coordinate object
+let dist = (coord1, coord2) => {
+  return Math.sqrt(Math.pow(coord1.left - coord2.left, 2) +
+    Math.pow(coord1.top - coord2.top, 2));
+};
+
 // Data processing functions
 // ---------------------------------------------------------------------------
 
@@ -131,11 +151,12 @@ let sketch = function( p ) {
     p.background(0,0,0);
     p.fill(255);
     p.rect(p.mouseX,p.mouseY,50,50);
+    let center = {
+      top: 300,
+      left: 300
+    };
     worlds.forEach(($w, index) => {
-      $w.offset({
-        'left': ($w.offset().left + 5 * (index + 1)) % p.windowWidth,
-        'top': $w.offset().top
-      });
+      orbitObject($w, center, 300);
     });
   };
 };

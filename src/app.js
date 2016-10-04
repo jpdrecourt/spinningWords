@@ -53,11 +53,11 @@ let orbitObject = ($object, centre, speed) => {
     origin = $object.offset();
   $object.offset({
     'left': centre.left +
-      (origin.left - centre.left) * Math.cos(dTheta) -
-      (origin.top - centre.top) * Math.sin(dTheta),
+      (origin.left - centre.left) * Math.cos(Math.PI / 3) * Math.cos(dTheta) -
+      2 * (origin.top - centre.top) * Math.sin(Math.PI / 3) * Math.sin(dTheta),
     'top' : centre.top +
-      (origin.top - centre.top) * Math.cos(dTheta) +
-      (origin.left - centre.left) * Math.sin(dTheta)
+      (origin.top - centre.top) * Math.sin(Math.PI / 3) * Math.cos(dTheta) +
+      0.5 * (origin.left - centre.left) * Math.cos(Math.PI / 3)* Math.sin(dTheta)
   });
 };
 

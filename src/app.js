@@ -53,11 +53,11 @@ let orbitObject = ($object, centre, speed) => {
     origin = $object.offset();
   $object.offset({
     'left': centre.left +
-      (origin.left - centre.left) * Math.cos(Math.PI / 3) * Math.cos(dTheta) -
-      2 * (origin.top - centre.top) * Math.sin(Math.PI / 3) * Math.sin(dTheta),
+      (origin.left - centre.left) * Math.cos(dTheta) -
+      (origin.top - centre.top) * Math.sin(dTheta),
     'top' : centre.top +
-      (origin.top - centre.top) * Math.sin(Math.PI / 3) * Math.cos(dTheta) +
-      0.5 * (origin.left - centre.left) * Math.cos(Math.PI / 3)* Math.sin(dTheta)
+      (origin.top - centre.top) * Math.cos(dTheta) +
+      (origin.left - centre.left) * Math.sin(dTheta)
   });
 };
 
@@ -129,21 +129,18 @@ poem.forEach((verse) => {
 words = uniqueValues(words);
 spanify($poem, words);
 wordPositions = eltPosition(words);
-
 // p5 attempt
 let sketch = function( p ) {
-
-  var x = 100;
-  var y = 100;
+  let center = wordPositions.upon[0];
 
   p.setup = function() {
     let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
     canvas.id = 'MyCanvas';
     canvas.parent('canvasHolder');
-    worlds.push($newObject(50, 50, 'world', '.poemContainer'));
-    worlds.push($newObject(200, 150, 'world', '.poemContainer'));
+    worlds.push($newObject(200, 200, 'world', '.poemContainer'));
+    worlds.push($newObject(400, 400, 'world', '.poemContainer'));
     worlds[1].css({
-      'background': 'green'
+      'background': 'green',
     });
   };
 
@@ -151,10 +148,6 @@ let sketch = function( p ) {
     p.background(0,0,0);
     p.fill(255);
     p.rect(p.mouseX,p.mouseY,50,50);
-    let center = {
-      top: 300,
-      left: 300
-    };
     worlds.forEach(($w, index) => {
       orbitObject($w, center, 300);
     });

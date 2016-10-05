@@ -23,6 +23,8 @@ let $poem = $('#poem');
 let wordPositions = {};
 // Spinning worlds
 let worlds = [];
+// Animation variables
+let previousStep = null; // Previous time step
 
 // Visualisation Functions
 // ----------------------------------------------------------------------------
@@ -58,6 +60,14 @@ let orbitObject = ($object, centre, speed) => {
     'top' : centre.top +
       (origin.top - centre.top) * Math.cos(dTheta) +
       (origin.left - centre.left) * Math.sin(dTheta)
+  });
+};
+
+// Destroys the world as a jquery object
+let destroy = ($w) => {
+  $w.css({
+    'background': 'black',
+    'border': 'solid white 3px'
   });
 };
 
@@ -142,18 +152,39 @@ let sketch = function( p ) {
     worlds[1].css({
       'background': 'green',
     });
-  };
-
-  p.draw = function() {
-    p.background(0,0,0);
-    p.fill(255);
-    p.rect(p.mouseX,p.mouseY,50,50);
-    worlds.forEach(($w, index) => {
-      orbitObject($w, center, 300);
+    // Destruction on hover
+    worlds.forEach(($w) => {
+      let that = $w;
+      $w.hover(() => {
+        destroy(that);
+      });
     });
   };
+
+  // p.draw = function() {
+  //   p.background(0,0,0);
+  //   p.fill(255);
+  //   p.rect(p.mouseX,p.mouseY,50,50);
+  //   worlds.forEach(($w, index) => {
+  //     orbitObject($w, center, 300);
+  //   });
+  // };
+
+  // Different looping approach
+  let stepOrbit = (timestamp) => {
+    if (!previousStep) previousStep = timestamp;
+    let period = 5000;
+    let progress = timestamp - previousStep;
+    worlds.forEach(($w, index) => {
+      orbitObject($w, center, period/progress);
+    });
+    previousStep = timestamp;
+    window.requestAnimationFrame(stepOrbit);
+  };
+  window.requestAnimationFrame(stepOrbit);
 };
 let myp5 = new p5(sketch);
+
 
 // Update word positions on resize
 $( window ).resize( () => {

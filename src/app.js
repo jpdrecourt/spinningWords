@@ -36,15 +36,12 @@ let versify = (arrayOfStrings) => {
     }) + '</div>';
 };
 
-// Create a new moving object with a given initial position and a class name
-// Returns a jQuery object
-let $newObject = (left, top, objectClass='', parent='body') => {
+// Create a new moving object with a given initial position as an offset
+// and a class name. Returns a jQuery object
+let $newObject = (offset, objectClass='', parent='body') => {
   let $object = $('<div></div>').appendTo(parent);
   $object.addClass(objectClass);
-  $object.offset({
-    'left': left,
-    'top': top
-  });
+  $object.offset(offset);
   return $object;
 };
 
@@ -141,9 +138,10 @@ wordPositions = eltPosition(words);
 
 // TODO: Generalise
 // ----------------------------------------------------------------------------
+// jshint -W069
 let center = wordPositions['upon'][0];
-worlds.push($newObject(200, 200, 'world', '.poemContainer'));
-worlds.push($newObject(400, 400, 'world', '.poemContainer'));
+worlds.push($newObject({'top': 200, 'left': 200}, 'world', '.poemContainer'));
+worlds.push($newObject({'top': 400, 'left': 400}, 'world', '.poemContainer'));
 worlds[1].css({
   'background': 'green',
 });
@@ -154,13 +152,14 @@ worlds.forEach(($w) => {
     destroy(that);
   });
 });
+// jshint +W069
 //-----------------------------------------------------------------------------
 
 // Display loop
 //-----------------------------------------------------------------------------
 let stepOrbit = (timestamp) => {
   if (!previousStep) previousStep = timestamp;
-  let period = 5000;
+  let period = 5000; // TODO: Generalise
   let progress = timestamp - previousStep;
   worlds.forEach(($w, index) => {
     orbitObject($w, center, period/progress);

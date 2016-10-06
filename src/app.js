@@ -6,7 +6,6 @@
 // Dependencies
 // ----------------------------------------------------------------------------
 let $ = require('jquery');
-let p5 = require('p5');
 
 // Data
 // ----------------------------------------------------------------------------
@@ -139,51 +138,38 @@ poem.forEach((verse) => {
 words = uniqueValues(words);
 spanify($poem, words);
 wordPositions = eltPosition(words);
-// p5 attempt
-let sketch = function( p ) {
-  let center = wordPositions.upon[0];
 
-  p.setup = function() {
-    let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-    canvas.id = 'MyCanvas';
-    canvas.parent('canvasHolder');
-    worlds.push($newObject(200, 200, 'world', '.poemContainer'));
-    worlds.push($newObject(400, 400, 'world', '.poemContainer'));
-    worlds[1].css({
-      'background': 'green',
-    });
-    // Destruction on hover
-    worlds.forEach(($w) => {
-      let that = $w;
-      $w.hover(() => {
-        destroy(that);
-      });
-    });
-  };
+// TODO: Generalise
+// ----------------------------------------------------------------------------
+let center = wordPositions['upon'][0];
+worlds.push($newObject(200, 200, 'world', '.poemContainer'));
+worlds.push($newObject(400, 400, 'world', '.poemContainer'));
+worlds[1].css({
+  'background': 'green',
+});
+// Destruction on hover
+worlds.forEach(($w) => {
+  let that = $w;
+  $w.hover(() => {
+    destroy(that);
+  });
+});
+//-----------------------------------------------------------------------------
 
-  // p.draw = function() {
-  //   p.background(0,0,0);
-  //   p.fill(255);
-  //   p.rect(p.mouseX,p.mouseY,50,50);
-  //   worlds.forEach(($w, index) => {
-  //     orbitObject($w, center, 300);
-  //   });
-  // };
-
-  // Different looping approach
-  let stepOrbit = (timestamp) => {
-    if (!previousStep) previousStep = timestamp;
-    let period = 5000;
-    let progress = timestamp - previousStep;
-    worlds.forEach(($w, index) => {
-      orbitObject($w, center, period/progress);
-    });
-    previousStep = timestamp;
-    window.requestAnimationFrame(stepOrbit);
-  };
+// Display loop
+//-----------------------------------------------------------------------------
+let stepOrbit = (timestamp) => {
+  if (!previousStep) previousStep = timestamp;
+  let period = 5000;
+  let progress = timestamp - previousStep;
+  worlds.forEach(($w, index) => {
+    orbitObject($w, center, period/progress);
+  });
+  previousStep = timestamp;
   window.requestAnimationFrame(stepOrbit);
 };
-let myp5 = new p5(sketch);
+window.requestAnimationFrame(stepOrbit);
+//-----------------------------------------------------------------------------
 
 
 // Update word positions on resize

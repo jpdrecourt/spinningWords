@@ -20,8 +20,8 @@ let $poem = $('#poem');
 // ----------------------------------------------------------------------------
 // Positions of the various words in the poem
 let wordPositions = {};
-// Spinning worlds
-let worlds = [];
+// Spinning planets
+let planets = [];
 // Animation variables
 let previousStep = null; // Previous time step
 
@@ -36,13 +36,14 @@ let versify = (arrayOfStrings) => {
     }) + '</div>';
 };
 
-// Create a new moving object with a given initial position as an offset
-// and a class name. Returns a jQuery object
+// Create a new moving object with a given initial position
+// as jquery coordinate and a class name. Returns a jQuery object
 let $newObject = (offset, objectClass='', parent='body') => {
-  let $object = $('<div></div>').appendTo(parent);
-  $object.addClass(objectClass);
-  $object.offset(offset);
-  return $object;
+  return $('<div></div>')
+    .addClass(objectClass)
+    .css('position', 'absolute')
+    .offset(offset)
+    .appendTo(parent);
 };
 
 // Make the object orbit around a point as an jQuery coordinate object from its current position at a given orbital speed in frames
@@ -59,12 +60,15 @@ let orbitObject = ($object, centre, speed) => {
   });
 };
 
-// Destroys the world as a jquery object
-let destroy = ($w) => {
-  $w.css({
-    'background': 'black',
-    'border': 'solid white 3px'
-  });
+// Create words at given coordinates
+let $createFlyingWord = (offset, word, parent) => {
+  return $newObject(offset, 'flyingWord').text(word);
+};
+
+// Destroys the planet as a jquery object
+let destroyPlanet = ($p) => {
+  planets.splice(planets.indexOf($p), 1);
+  $p.remove();
 };
 
 // Calculate the distance between two two jQuery coordinate object
@@ -75,6 +79,21 @@ let dist = (coord1, coord2) => {
 
 // Data processing functions
 // ---------------------------------------------------------------------------
+
+// Calculate the epicentre of all the words
+let calculateOrbitCentre = ($p) => {
+  let centre = {'left': 0, 'top': 0}, count = 0;
+  $p.data('words').forEach((w) => {
+      wordPositions[w].forEach((offset) => {
+          count++;
+          centre.left += offset.left;
+          centre.top += offset.top;
+      });
+  });
+  centre.left = centre.left / count;
+  centre.top = centre.top / count;
+  return centre;
+};
 
 // Concatenate a string into an array of lowerccase words without punctuation
 // Keeps - and '
@@ -125,50 +144,63 @@ let eltPosition = (words, eltClass='word') => {
 // ----------------------------------------------------------------------------
 // Display the poem
 
-$poem.html(versify(poem));
+$(document).ready(() => {
+  $poem.html(versify(poem));
 
-// Identify the position of the words
-let words = [];
-poem.forEach((verse) => {
-  words = words.concat(stringToWords(verse));
-});
-words = uniqueValues(words);
-spanify($poem, words);
-wordPositions = eltPosition(words);
-
-// TODO: Generalise
-// ----------------------------------------------------------------------------
-// jshint -W069
-let center = wordPositions['upon'][0];
-worlds.push($newObject({'top': 200, 'left': 200}, 'world', '.poemContainer'));
-worlds.push($newObject({'top': 400, 'left': 400}, 'world', '.poemContainer'));
-worlds[1].css({
-  'background': 'green',
-});
-// Destruction on hover
-worlds.forEach(($w) => {
-  let that = $w;
-  $w.hover(() => {
-    destroy(that);
+  // Identify the position of the words
+  let words = [];
+  poem.forEach((verse) => {
+    words = words.concat(stringToWords(verse));
   });
-});
-// jshint +W069
-//-----------------------------------------------------------------------------
+  words = uniqueValues(words);
+  spanify($poem, words);
+  wordPositions = eltPosition(words);
 
-// Display loop
-//-----------------------------------------------------------------------------
-let stepOrbit = (timestamp) => {
-  if (!previousStep) previousStep = timestamp;
-  let period = 5000; // TODO: Generalise
-  let progress = timestamp - previousStep;
-  worlds.forEach(($w, index) => {
-    orbitObject($w, center, period/progress);
+  // TODO: Generalise
+  // ----------------------------------------------------------------------------
+  // jshint -W069
+  planets.push($newObject({'top': 200, 'left': 200}, 'planet', '.poemContainer').data('words', ['upon', 'best']));
+  planets.push($newObject({'top': 400, 'left': 400}, 'planet', '.poemContainer').data('words', ['a']));
+  planets[1].css({
+    'background': 'green',
   });
-  previousStep = timestamp;
-  window.requestAnimationFrame(stepOrbit);
-};
-window.requestAnimationFrame(stepOrbit);
-//-----------------------------------------------------------------------------
+  // Destruction on hover
+  planets.forEach(($p) => {
+    let that = $p;
+    $p.hover(() => {
+      let offset = that.offset();
+      let words = that.data('words');
+      destroyPlanet(that);
+      words.forEach((w) => {
+        wordPositions[w].forEach((pos) => {
+          let $flyingWord = $createFlyingWord(offset, w);
+          $flyingWord.animate(pos, 2000, () => {
+            return;
+          });
+
+        });
+      });
+    });
+  });
+  // jshint +W069
+  //-----------------------------------------------------------------------------
+
+  // Display loop
+  //-----------------------------------------------------------------------------
+  let displayLoop = (timestamp) => {
+    if (!previousStep) previousStep = timestamp;
+    let period = 5000; // TODO: Generalise
+    let progress = timestamp - previousStep;
+    planets.forEach(($p) => {
+      let centre = calculateOrbitCentre($p);
+      orbitObject($p, centre, period/progress);
+    });
+    previousStep = timestamp;
+    window.requestAnimationFrame(displayLoop);
+  };
+  window.requestAnimationFrame(displayLoop);
+  //-----------------------------------------------------------------------------
+});
 
 
 // Update word positions on resize

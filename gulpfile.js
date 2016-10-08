@@ -6,6 +6,7 @@
 
 // Declarations & dependencies
 // ----------------------------------------------------------------------------
+var fs = require('fs'); // To read local files
 var gulp = require('gulp'); // Task Automation
 var gutil = require('gulp-util'); // Utilities for Gulp like logging
 var browserify = require('browserify'); // Turning nodeJS into browser compatible JS
@@ -20,10 +21,9 @@ var scssPages = ['src/*.scss']; // CSS pages to watch
 // External dependencies that don't need to be rebundled while developing
 // They'll be bundled once and for all in 'vendor.js'
 // In production, they'll be included in 'bundle.js'
-var dependencies = [
-  'jquery',
-  'p5'
-];
+// Extracted directly from package.json for simplicity.
+var packageData = JSON.parse(fs.readFileSync('./package.json'));
+var dependencies = Object.getOwnPropertyNames(packageData.dependencies);
 // Count of the times a tasks refires (with gulp.watch)
 var scriptsCount = 0;
 

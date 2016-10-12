@@ -180,6 +180,56 @@ let onkey = (e, key, pressed) => {
   }
 };
 
+// Game management (inspired by http://codeincomplete.com/posts/javascript-game-foundations-the-game-loop/)
+// ----------------------------------------------------------------------------
+// All times in seconds
+// Options object:
+// step: The mechanics updating timestep (default: 1/60)
+// slow: The slow motion scaling factor (default: 1)
+// update: the mechanics update function (no default)
+// render: the rendering function (no default)
+let Game = {
+  run: (options) => {
+    const MAX_DT = 1;
+    let last,
+        dt       = 0,
+        slow     = options.slow || 1,
+        step     = 1/(options.fps || 60), // Fixed timestep
+        slowStep = slow * step,
+        update   = options.update,
+        // The rendering (once per )
+        render   = options.render;
+    let frame = (now) => {
+      if (!last) last = now;
+      dt = dt + Math.min(MAX_DT, (now - last) / 1000);
+      while (dt > slowStep) {
+        dt = dt - slowStep;
+        update(step);
+      }
+      render(dt/slow);
+      last = now;
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }
+};
+
+// Updating function
+let update = (step) => {
+  planets.forEach(($p) => {
+    let centre = $p.data('centre');
+    let period = $p.data('period');
+    let direction = $p.data('direction');
+    orbitObject($p, centre, period/step, direction);
+  });
+};
+
+// Rendering function
+let render = (dt) => {
+  return;
+};
+
+
 // Event listeners
 // ----------------------------------------------------------------------------
 $(document)
@@ -238,7 +288,7 @@ $(document).ready(() => {
         'left': $(document).width() / 2
       },
       'direction': Math.floor(Math.random() * 2) * 2 - 1,
-      'period': randomValue(5000, 9000)
+      'period': randomValue(5, 9)
     });
     // Destruction on hover
     $thisPlanet.hover(() => {
@@ -264,27 +314,9 @@ $(document).ready(() => {
 
   $star.data('speed', {'x': 0, 'y': 0});
 
-  // Keyboard handler to move the shooting star
+  // Run Game
+  Game.run({update: update, render: render});
 
-  // Display loop
-  //-----------------------------------------------------------------------------
-  let displayLoop = (timestamp) => {
-    if (!previousStep) previousStep = timestamp;
-    let progress = timestamp - previousStep;
-    planets.forEach(($p) => {
-      let centre = $p.data('centre');
-      let period = $p.data('period');
-      let direction = $p.data('direction');
-      orbitObject($p, centre, period/progress, direction);
-    });
-
-
-
-    previousStep = timestamp;
-    window.requestAnimationFrame(displayLoop);
-  };
-  window.requestAnimationFrame(displayLoop);
-  //-----------------------------------------------------------------------------
 });
 
 

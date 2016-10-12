@@ -16,6 +16,16 @@ import {poem} from './data';
 // ----------------------------------------------------------------------------
 let $poem = $('#poem');
 
+// Constants
+// ----------------------------------------------------------------------------
+// Controls
+const KEY = {
+  LEFT: 'o',
+  RIGHT: 'p',
+  DOWN: 'a',
+  UP: 'q'
+};
+
 // Global variables
 // ----------------------------------------------------------------------------
 // Positions of the various words in the poem
@@ -24,6 +34,10 @@ let wordPositions = {};
 let planets = [];
 // Animation variables
 let previousStep = null; // Previous time step
+// Interaction object
+let player = {
+  input: {left: false, right: false, up: false, down: false}
+};
 
 // Visualisation Functions
 // ----------------------------------------------------------------------------
@@ -152,8 +166,35 @@ let spannifiedPositions = (spanClass) => {
   return positions;
 };
 
+// Input management functions
+// ----------------------------------------------------------------------------
+
+// Key handling
+let onkey = (e, key, pressed) => {
+  switch (key) {
+    case KEY.LEFT:  player.input.left  = pressed; e.preventDefault(); break;
+    case KEY.RIGHT: player.input.right = pressed; e.preventDefault(); break;
+    case KEY.UP:    player.input.up    = pressed; e.preventDefault(); break;
+    case KEY.DOWN:  player.input.down  = pressed; e.preventDefault(); break;
+  }
+};
+
+// Event listeners
+// ----------------------------------------------------------------------------
+$(document)
+  .keydown( (e) => {
+    return onkey(e, e.key.toLowerCase(), true);
+  })
+  .keyup ( (e) => {
+    return onkey(e, e.key.toLowerCase(), false);
+  });
+
+
+
 // Main execution
 // ----------------------------------------------------------------------------
+
+
 // Display the poem
 
 $(document).ready(() => {
@@ -172,6 +213,7 @@ $(document).ready(() => {
     let verseWords = stringToWords(d.innerText);
     // Extract the words position
     spanify($(d), verseWords, `verse${i}`);
+    // FIXME: Offset between the flying words final position and the words in the poem
     let wordPositions = spannifiedPositions(`verse${i}`);
     // Create a new planet
     let offset = {
@@ -209,6 +251,18 @@ $(document).ready(() => {
     planets.push($thisPlanet);
   });
 
+  // Create shooting star
+  let $star = $newObject({'top': $(document).height() / 2, 'left': $(document).width() / 2}, 'star', '.poemContainer');
+
+  // Debug
+  let starDV = 1;
+  let isDown = false;
+  let mouseOrigin = {'x': undefined, 'y': undefined};
+
+  $star.data('speed', {'x': 0, 'y': 0});
+
+  // Keyboard handler to move the shooting star
+
   // Display loop
   //-----------------------------------------------------------------------------
   let displayLoop = (timestamp) => {
@@ -220,6 +274,13 @@ $(document).ready(() => {
       let direction = $p.data('direction');
       orbitObject($p, centre, period/progress, direction);
     });
+    let starOffset = {
+      'left': $star.offset().left + $star.data('speed').x * progress/ 1000,
+      'top': $star.offset().top
+    };
+    $star.offset(starOffset);
+
+
     previousStep = timestamp;
     window.requestAnimationFrame(displayLoop);
   };

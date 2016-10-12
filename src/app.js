@@ -218,7 +218,7 @@ let Game = {
 let update = (step) => {
   updatePlanets(step);
   moveStar(step);
-  // detectCollision(step);
+  starCollision();
 };
 
 // Rendering function
@@ -261,6 +261,17 @@ let moveStar = (step) => {
   $star.offset({
     left: starOffset.left + starVelocity.x * step,
     top: starOffset.top + starVelocity.y * step});
+};
+
+// Collision detection between the star and the planets
+let starCollision = () => {
+  let starOffset = $star.offset();
+  planets.forEach( ($p) => {
+    // FIXME Magic number + Proper collision
+    if (dist(starOffset, $p.offset()) < 40) {
+      destroyPlanet($p);
+    }
+  });
 };
 
 // Event listeners
@@ -322,9 +333,6 @@ $(document).ready(() => {
       },
       'direction': Math.floor(Math.random() * 2) * 2 - 1,
       'period': randomValue(5, 9)
-    });
-    $thisPlanet.hover(() => {
-      destroyPlanet($thisPlanet);
     });
     planets.push($thisPlanet);
   });

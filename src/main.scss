@@ -39,10 +39,12 @@ body, html
   z-index: 1
 
 .star
-  background: yellow
-  height: 40px
-  width: 40px
   position: absolute
+  width: 40px
+  height: 40px
+  background: yellow
+  opacity: 0.7
+  transform: translate(-20px, -20px)
 
 .word
   display: inline-block

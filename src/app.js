@@ -5,7 +5,8 @@
 
 // Dependencies
 // ----------------------------------------------------------------------------
-let $ = require('jquery');
+const $ = require('jquery');
+const createFps = require('fps-indicator'); // DEBUG
 
 // Data
 // ----------------------------------------------------------------------------
@@ -198,6 +199,12 @@ $(document)
 // Display the poem
 
 $(document).ready(() => {
+  // FPS indicator // DEBUG
+  let fps = createFps({
+    updatePeriod: 500
+  });
+  fps.element.style.color = 'darkgrey';
+
   // Divide the poem in verses
   $poem.html(versify(poem));
 
@@ -254,10 +261,6 @@ $(document).ready(() => {
   // Create shooting star
   let $star = $newObject({'top': $(document).height() / 2, 'left': $(document).width() / 2}, 'star', '.poemContainer');
 
-  // Debug
-  let starDV = 1;
-  let isDown = false;
-  let mouseOrigin = {'x': undefined, 'y': undefined};
 
   $star.data('speed', {'x': 0, 'y': 0});
 
@@ -274,11 +277,7 @@ $(document).ready(() => {
       let direction = $p.data('direction');
       orbitObject($p, centre, period/progress, direction);
     });
-    let starOffset = {
-      'left': $star.offset().left + $star.data('speed').x * progress/ 1000,
-      'top': $star.offset().top
-    };
-    $star.offset(starOffset);
+
 
 
     previousStep = timestamp;

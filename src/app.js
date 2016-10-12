@@ -130,6 +130,15 @@ let stringToWords = (string) => {
     .split(' ');
 };
 
+// Turns an array of words into an array of all their letters with repetitions
+let wordsToLetters = (words) => {
+  let letters = [];
+  words.forEach( (word) => {
+    letters = letters.concat(word.split(''));
+  });
+  return letters;
+};
+
 // Crawls the jquery $object and creates a span around each word of the word
 // list. The span gets one class [spanClass]
 let spanify = ($object, words, spanClass='word') => {
@@ -312,6 +321,7 @@ $(document).ready(() => {
   $('.verse').each((i, d) => {
     // Extract the words
     let verseWords = stringToWords(d.innerText);
+    let verseLetters = wordsToLetters(verseWords);
     // Extract the words position
     spanify($(d), verseWords, `verse${i}`);
     // FIXME: Offset between the flying words final position and the words in the poem
@@ -322,7 +332,15 @@ $(document).ready(() => {
       'left': $(document).width() / 2 + randomValue(-maxRadius(), maxRadius())
     };
     let $thisPlanet = $newObject(offset, 'planet', '.poemContainer');
-    $thisPlanet.css('background', '#' + randomColor());
+    verseLetters.forEach( (l) => {
+      let $l = $(`<span class='letter'>${l}</span>`);
+      $thisPlanet.append($l);
+      $l.offset({
+        left: randomValue($thisPlanet.width()) + $thisPlanet.offset().left,
+        top: randomValue($thisPlanet.height()) + $thisPlanet.offset().top
+      });
+    });
+//    $thisPlanet.css('background', '#' + randomColor());
     $thisPlanet.data({
       'verse': $(d),
       'words': verseWords,

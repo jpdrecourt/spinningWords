@@ -32,11 +32,14 @@ body, html
 .planet
   position: absolute
   border-radius: 50%
-  background: red
+  background: transparent
   position: absolute
   height: 50px
   width: 50px
   z-index: 1
+  /*overflow: hidden*/
+  word-break: break-all
+
 
 .star
   position: absolute
@@ -54,3 +57,8 @@ body, html
   position: absolute
   display: inline-block
   opacity: 1
+
+.letter
+  font-size: 1.5em
+  color: lightgrey
+  position: relative

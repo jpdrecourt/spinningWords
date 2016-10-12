@@ -26,15 +26,18 @@ const KEY = {
   DOWN: 'a',
   UP: 'q'
 };
+// Physics
+// TODO: Figure out the exact physics
+const DV = 1500, // Acceleration
+  FRICTION = 2; // Friction coefficient
+
 
 // Global variables
 // ----------------------------------------------------------------------------
-// Positions of the various words in the poem
-let wordPositions = {};
 // Spinning planets
 let planets = [];
-// Animation variables
-let previousStep = null; // Previous time step
+// Star
+let $star;
 // Interaction object
 let player = {
   input: {left: false, right: false, up: false, down: false}
@@ -82,8 +85,20 @@ let $createFlyingWord = (offset, word, parent = 'body') => {
 
 // Destroys the planet as a jquery object
 let destroyPlanet = ($p) => {
+  let currentOffset = $p.offset();
+  let $verse = $p.data('verse');
+  let wordPositions = $p.data('positions');
   planets.splice(planets.indexOf($p), 1);
   $p.remove();
+  wordPositions.forEach((data) => {
+      let w = data.word;
+      let pos = data.offset;
+      let $flyingWord = $createFlyingWord(currentOffset, w, '.poemContainer');
+      $flyingWord.animate(pos, 2000, () => {
+        $flyingWord.remove();
+        $verse.css('opacity', 1);
+      });
+    });
 };
 
 // Calculate the distance between two two jQuery coordinate object
@@ -104,21 +119,6 @@ let randomColor = () => {
 
 // Data processing functions
 // ---------------------------------------------------------------------------
-
-// Calculate the epicentre of all the words
-let calculateOrbitCentre = ($p) => {
-  let centre = {'left': 0, 'top': 0}, count = 0;
-  $p.data('words').forEach((w) => {
-      wordPositions[w].forEach((offset) => {
-          count++;
-          centre.left += offset.left;
-          centre.top += offset.top;
-      });
-  });
-  centre.left = centre.left / count;
-  centre.top = centre.top / count;
-  return centre;
-};
 
 // Concatenate a string into an array of lowerccase words without punctuation
 // Keeps - and '
@@ -216,6 +216,17 @@ let Game = {
 
 // Updating function
 let update = (step) => {
+  updatePlanets(step);
+  moveStar(step);
+  // detectCollision(step);
+};
+
+// Rendering function
+let render = (dt) => {
+  return;
+};
+
+let updatePlanets = (step) => {
   planets.forEach(($p) => {
     let centre = $p.data('centre');
     let period = $p.data('period');
@@ -224,11 +235,33 @@ let update = (step) => {
   });
 };
 
-// Rendering function
-let render = (dt) => {
-  return;
+// Star movement with drag according to http://stackoverflow.com/questions/667034/simple-physics-based-movement
+let moveStar = (step) => {
+  // TODO: Boundary conditions
+  let starVelocity = $star.data('velocity');
+  let starOffset = $star.offset();
+  // Acceleration
+  if (player.input.right) {
+    starVelocity.x += DV * step;
+  }
+  if (player.input.left) {
+    starVelocity.x -= DV * step;
+  }
+  if (player.input.down) {
+    starVelocity.y += DV * step;
+  }
+  if (player.input.up) {
+    starVelocity.y -= DV * step;
+  }
+  // FRICTION
+  starVelocity.x -= FRICTION * step * starVelocity.x;
+  starVelocity.y -= FRICTION * step * starVelocity.y;
+  // Update the star
+  $star.data('velocity', starVelocity);
+  $star.offset({
+    left: starOffset.left + starVelocity.x * step,
+    top: starOffset.top + starVelocity.y * step});
 };
-
 
 // Event listeners
 // ----------------------------------------------------------------------------
@@ -290,37 +323,17 @@ $(document).ready(() => {
       'direction': Math.floor(Math.random() * 2) * 2 - 1,
       'period': randomValue(5, 9)
     });
-    // Destruction on hover
     $thisPlanet.hover(() => {
-      let currentOffset = $thisPlanet.offset();
-      let $verse = $thisPlanet.data('verse');
       destroyPlanet($thisPlanet);
-      wordPositions.forEach((data) => {
-          let w = data.word;
-          let pos = data.offset;
-          let $flyingWord = $createFlyingWord(currentOffset, w, '.poemContainer');
-          $flyingWord.animate(pos, 2000, () => {
-            $flyingWord.remove();
-            $verse.css('opacity', 1);
-          });
-        });
     });
     planets.push($thisPlanet);
   });
 
   // Create shooting star
-  let $star = $newObject({'top': $(document).height() / 2, 'left': $(document).width() / 2}, 'star', '.poemContainer');
-
-
-  $star.data('speed', {'x': 0, 'y': 0});
+  $star = $newObject({'top': $(document).height() / 2, 'left': $(document).width() / 2}, 'star', '.poemContainer');
+  $star.data('velocity', {'x': 0, 'y': 0});
 
   // Run Game
   Game.run({update: update, render: render});
 
-});
-
-
-// Update word positions on resize
-$( window ).resize( () => {
-  wordPositions = eltPosition(words);
 });

@@ -30,6 +30,7 @@ body, html
 
 
 .planet
+  position: absolute
   border-radius: 50%
   background: red
   position: absolute
@@ -48,5 +49,6 @@ body, html
 
 .flyingWord
   @extend .text
+  position: absolute
   display: inline-block
   opacity: 1

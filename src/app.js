@@ -252,7 +252,6 @@ let updatePlanets = (step) => {
 
 // Star movement with drag according to http://stackoverflow.com/questions/667034/simple-physics-based-movement
 let moveStar = (step) => {
-  // TODO: Boundary conditions
   let starVelocity = $star.data('velocity');
   let starOffset = $star.offset();
   // Acceleration
@@ -271,11 +270,16 @@ let moveStar = (step) => {
   // FRICTION
   starVelocity.x -= FRICTION * step * starVelocity.x;
   starVelocity.y -= FRICTION * step * starVelocity.y;
-  // Update the star
+  // Update the star position
   $star.data('velocity', starVelocity);
-  $star.offset({
-    left: starOffset.left + starVelocity.x * step,
-    top: starOffset.top + starVelocity.y * step});
+  starOffset.left += starVelocity.x * step;
+  starOffset.top += starVelocity.y * step;
+  // Boundary counditions
+  starOffset.left = Math.min(Math.max(starOffset.left, 0),
+    $(window).width() - $star.width());
+  starOffset.top = Math.min(Math.max(starOffset.top, 0),
+    $(window).height() - $star.height());
+  $star.offset(starOffset);
 };
 
 // Collision detection between the star and the planets
@@ -362,7 +366,8 @@ $(document).ready(() => {
   });
 
   // Create shooting star
-  $star = $newObject({'top': $(document).height() / 2, 'left': $(document).width() / 2}, 'star', '.poemContainer');
+  // FIXME Magic number
+  $star = $newObject({'top': 100, 'left': 100}, 'star', '.poemContainer');
   $star.data('velocity', {'x': 0, 'y': 0});
 
   // Run Game

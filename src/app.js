@@ -42,6 +42,8 @@ let $star;
 let player = {
   input: {left: false, right: false, up: false, down: false}
 };
+// Currently destroying a planet
+let isPlanetDestroyed = false;
 
 // Visualisation Functions
 // ----------------------------------------------------------------------------
@@ -85,6 +87,8 @@ let $createFlyingWord = (offset, word, parent = 'body') => {
 
 // Destroys the planet as a jquery object
 let destroyPlanet = ($p) => {
+  isPlanetDestroyed = true;
+  $star.addClass('dim');
   let currentOffset = $p.offset();
   let $verse = $p.data('verse');
   let wordPositions = $p.data('positions');
@@ -97,6 +101,8 @@ let destroyPlanet = ($p) => {
       $flyingWord.animate(pos, 2000, () => {
         $flyingWord.remove();
         $verse.css('opacity', 1);
+        isPlanetDestroyed = false;
+        $star.removeClass('dim');
       });
     });
 };
@@ -277,7 +283,7 @@ let starCollision = () => {
   let starOffset = $star.offset();
   planets.forEach( ($p) => {
     // FIXME Magic number + Proper collision
-    if (dist(starOffset, $p.offset()) < 40) {
+    if (dist(starOffset, $p.offset()) < 40 && !isPlanetDestroyed) {
       destroyPlanet($p);
     }
   });
@@ -350,7 +356,7 @@ $(document).ready(() => {
         'left': $(document).width() / 2
       },
       'direction': Math.floor(Math.random() * 2) * 2 - 1,
-      'period': randomValue(5, 9)
+      'period': randomValue(7, 9)
     });
     planets.push($thisPlanet);
   });

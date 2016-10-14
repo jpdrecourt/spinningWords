@@ -1,3 +1,5 @@
+$star-color: yellow
+
 body, html
   background: black
   color: white
@@ -37,17 +39,33 @@ body, html
   height: 50px
   width: 50px
   z-index: 1
-  /*overflow: hidden*/
+  overflow: hidden
   word-break: break-all
+  box-shadow: 0 0 40px darkgrey
 
 
 .star
   position: absolute
   width: 40px
   height: 40px
-  background: yellow
-  opacity: 0.7
+  border-radius: 50%
+  background: radial-gradient($star-color 10%, rgba(255, 255, 0, 0.0) 100%)
   transform: translate(-20px, -20px)
+  z-index: 0
+  box-shadow: 0 0 40px $star-color
+
+.dim
+  box-shadow: 0 0 0;
+  opacity: 0.5
+
+/*.star::after
+  position: absolute
+  width: 50%
+  height: 50%
+  background: pink
+  top: 100%
+  content: ' '
+  left: 25%*/
 
 .word
   display: inline-block

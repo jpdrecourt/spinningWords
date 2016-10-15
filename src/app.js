@@ -9,6 +9,7 @@ const $ = require('jquery');
 // @if NODE_ENV='development'
 const createFps = require('fps-indicator');
 // @endif
+const howler = require('howler');
 
 // Data
 // ----------------------------------------------------------------------------
@@ -28,6 +29,8 @@ const KEY = {
   DOWN: 'a',
   UP: 'q'
 };
+// Assets
+const SOUND_DIR = './web/assets/sounds/';
 // Physics
 // TODO: Figure out the exact physics
 const DV = 1500, // Acceleration
@@ -46,6 +49,11 @@ let player = {
 };
 // Currently destroying a planet
 let isPlanetDestroyed = false;
+// Background music
+let backgroundMusic = new howler.Howl({
+  src: [SOUND_DIR + 'fantasia.mp3', SOUND_DIR + 'fantasia.ogg'],
+  autoplay: true
+});
 
 // Visualisation Functions
 // ----------------------------------------------------------------------------
@@ -94,6 +102,7 @@ let destroyPlanet = ($p) => {
   let currentOffset = $p.offset();
   let $verse = $p.data('verse');
   let wordPositions = $p.data('positions');
+  $p.data('sound').play();
   planets.splice(planets.indexOf($p), 1);
   $p.remove();
   wordPositions.forEach((data) => {
@@ -123,6 +132,53 @@ let maxRadius = () => {
 // Create a random HEX color (from CSS Tricks)
 let randomColor = () => {
   return Math.floor(Math.random()*16777215).toString(16);
+};
+
+let createPlanets = () => {
+  // Create one planet per verse
+  $('.verse').each((i, d) => {
+    // Extract the words
+    let verseWords = stringToWords(d.innerText);
+    let verseLetters = wordsToLetters(verseWords);
+    let soundFileName = `${SOUND_DIR}mangled_verse${(i < 9) ? '0' : ''}${i + 1}`;
+    let sound = new howler.Howl({
+      'src': [soundFileName + '.mp3', soundFileName + '.ogg'],
+      'volume': 0.5,
+      'onplay': () => {backgroundMusic.fade(1.0, 0.7, 100);},
+      'onend': () => {backgroundMusic.fade(0.7, 1.0, 100);}
+    });
+    // Extract the words position
+    spanify($(d), verseWords, `verse${i}`);
+    // FIXME: Offset between the flying words final position and the words in the poem
+    let wordPositions = spannifiedPositions(`verse${i}`);
+    // Create a new planet
+    let offset = {
+      'top': $(document).height() / 2 + randomValue(-maxRadius(), maxRadius()),
+      'left': $(document).width() / 2 + randomValue(-maxRadius(), maxRadius())
+    };
+    let $thisPlanet = $newObject(offset, 'planet', '.poemContainer');
+    verseLetters.forEach( (l) => {
+      let $l = $(`<span class='letter'>${l}</span>`);
+      $thisPlanet.append($l);
+      $l.offset({
+        left: randomValue($thisPlanet.width()) + $thisPlanet.offset().left,
+        top: randomValue($thisPlanet.height()) + $thisPlanet.offset().top
+      });
+    });
+    $thisPlanet.data({
+      'sound': sound,
+      'verse': $(d),
+      'words': verseWords,
+      'positions': wordPositions,
+      'centre': {
+        'top': $(document).height() / 2,
+        'left': $(document).width() / 2
+      },
+      'direction': Math.floor(Math.random() * 2) * 2 - 1,
+      'period': randomValue(7, 9)
+    });
+    planets.push($thisPlanet);
+  });
 };
 
 // Data processing functions
@@ -305,13 +361,8 @@ $(document)
     return onkey(e, e.key.toLowerCase(), false);
   });
 
-
-
 // Main execution
 // ----------------------------------------------------------------------------
-
-
-// Display the poem
 
 $(document).ready(() => {
   // @if NODE_ENV='development'
@@ -321,58 +372,16 @@ $(document).ready(() => {
   });
   fps.element.style.color = 'darkgrey';
   // @endif
+  // Play the background sound
+
   // Divide the poem in verses
   $poem.html(versify(poem));
-
-  // Get the dimensions of the poem
-  let topLeftCorner = $poem.filter(':first').offset();
-  let bottomRightCorner = $poem.filter(':last').offset();
-  bottomRightCorner.left += $poem.filter(':last').width();
-  bottomRightCorner.top += $poem.filter(':last').height();
-
-  // Create one planet per verse
-  $('.verse').each((i, d) => {
-    // Extract the words
-    let verseWords = stringToWords(d.innerText);
-    let verseLetters = wordsToLetters(verseWords);
-    // Extract the words position
-    spanify($(d), verseWords, `verse${i}`);
-    // FIXME: Offset between the flying words final position and the words in the poem
-    let wordPositions = spannifiedPositions(`verse${i}`);
-    // Create a new planet
-    let offset = {
-      'top': $(document).height() / 2 + randomValue(-maxRadius(), maxRadius()),
-      'left': $(document).width() / 2 + randomValue(-maxRadius(), maxRadius())
-    };
-    let $thisPlanet = $newObject(offset, 'planet', '.poemContainer');
-    verseLetters.forEach( (l) => {
-      let $l = $(`<span class='letter'>${l}</span>`);
-      $thisPlanet.append($l);
-      $l.offset({
-        left: randomValue($thisPlanet.width()) + $thisPlanet.offset().left,
-        top: randomValue($thisPlanet.height()) + $thisPlanet.offset().top
-      });
-    });
-//    $thisPlanet.css('background', '#' + randomColor());
-    $thisPlanet.data({
-      'verse': $(d),
-      'words': verseWords,
-      'positions': wordPositions,
-      'centre': {
-        'top': $(document).height() / 2,
-        'left': $(document).width() / 2
-      },
-      'direction': Math.floor(Math.random() * 2) * 2 - 1,
-      'period': randomValue(7, 9)
-    });
-    planets.push($thisPlanet);
-  });
-
+  // Create the planets
+  createPlanets();
   // Create shooting star
   // FIXME Magic number
   $star = $newObject({'top': 100, 'left': 100}, 'star', '.poemContainer');
   $star.data('velocity', {'x': 0, 'y': 0});
-
   // Run Game
   Game.run({update: update, render: render});
 

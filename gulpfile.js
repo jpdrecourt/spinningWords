@@ -55,10 +55,10 @@ gulp.task('sass', function() {
 });
 // Symlink to media for development
 gulp.task('assets', function() {
-  fs.stat('./dev/assets', function(err) {
+  fs.stat('./dev/web/assets', function(err) {
     if (err !== null) {
       return gulp.src('assets')
-      .pipe(symlink('dev/assets'));
+      .pipe(symlink('dev/web/assets'));
     }
   });
 });
@@ -86,7 +86,7 @@ gulp.task('deploy', function() {
     }))
     .pipe(gulp.dest('dist/web/css'));
   gulp.src(['./assets/**/*'])
-    .pipe(gulp.dest('./dist/assets'));
+    .pipe(gulp.dest('./dist/web/assets'));
   bundleApp(true);
 });
 

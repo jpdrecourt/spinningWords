@@ -14,9 +14,11 @@ var source = require('vinyl-source-stream'); // Allows to use normal text stream
 var babelify = require('babelify'); // Transpiler
 var webserver = require('gulp-webserver'); // Webserver with LiveReaload
 var sass = require('gulp-sass'); // SASS compiler
+var preprocess =require('gulp-preprocess'); // Preprocessing files
+var symlink = require('gulp-sym'); // Symlink in development
 var prefix = require('gulp-autoprefixer'); // Browser compatibility
-var htmlPages = ['src/*.html']; // HTML pages to watch
-var scssPages = ['src/*.scss']; // CSS pages to watch
+var htmlPages = ['src/**/*.html']; // HTML pages to watch
+var scssPages = ['src/**/*.scss']; // CSS pages to watch
 
 // External dependencies that don't need to be rebundled while developing
 // They'll be bundled once and for all in 'vendor.js'
@@ -31,7 +33,13 @@ var scriptsCount = 0;
 // ----------------------------------------------------------------------------
 // Development task - Don't bundle the dependencies
 gulp.task('scripts', function() {
-  bundleApp(false);
+  return bundleApp(false);
+});
+// Copy HTML page in separate task to avoid recompiling JS
+gulp.task('copy-html', function() {
+  return gulp.src(htmlPages)
+  .pipe(preprocess({context: {NODE_ENV: 'development'}}))
+  .pipe(gulp.dest('dev'));
 });
 // SASS, CSS and prefix
 gulp.task('sass', function() {
@@ -45,13 +53,17 @@ gulp.task('sass', function() {
     }))
     .pipe(gulp.dest('dev/web/css'));
 });
-// Copy HTML page in separate task to avoid recompiling JS
-gulp.task('copy-html', function() {
-  gulp.src(htmlPages)
-    .pipe(gulp.dest('dev'));
+// Symlink to media for development
+gulp.task('assets', function() {
+  fs.stat('./dev/assets', function(err) {
+    if (err !== null) {
+      return gulp.src('assets')
+      .pipe(symlink('dev/assets'));
+    }
+  });
 });
 // Webserver task for Development
-gulp.task('webserver', function() {
+gulp.task('webserver', ['scripts', 'copy-html', 'sass', 'assets'], function() {
   gulp.src('./dev/')
     .pipe(webserver({
       livereload: true,
@@ -62,6 +74,7 @@ gulp.task('webserver', function() {
 // Destination directory: ./dist
 gulp.task('deploy', function() {
   gulp.src(htmlPages)
+    .pipe(preprocess({context: {NODE_ENV: 'production'}}))
     .pipe(gulp.dest('dist'));
   gulp.src(scssPages)
     .pipe(sass({
@@ -72,15 +85,17 @@ gulp.task('deploy', function() {
       cascade: true
     }))
     .pipe(gulp.dest('dist/web/css'));
+  gulp.src(['./assets/**/*'])
+    .pipe(gulp.dest('./dist/assets'));
   bundleApp(true);
 });
 
 // Watch task - Reruns scripts task everytime something changes
 // Destination directory: dist
 gulp.task('watch', function() {
-  gulp.watch(['./src/*.js'], ['scripts']);
-  gulp.watch(['./src/*.html'], ['copy-html']);
-  gulp.watch(['./src/*.scss'], ['sass']);
+  gulp.watch(['./src/**/*.js'], ['scripts']);
+  gulp.watch(['./src/**/*.html'], ['copy-html']);
+  gulp.watch(['./src/**/*.scss'], ['sass']);
 });
 
 // Default task for development - Called by 'gulp' on terminal
@@ -126,7 +141,7 @@ function bundleApp(isProduction) {
     });
   }
 
-  appBundler
+  return appBundler
   // Transform ES6 and JSX to ES5 with babelify
     .transform('babelify', {
       presets: ['es2015']
@@ -134,5 +149,10 @@ function bundleApp(isProduction) {
     .bundle()
     .on('error', gutil.log)
     .pipe(source('bundle.js'))
-    .pipe(gulp.dest(rootDir + '/web/js/'));
+    .pipe(gulp.dest(rootDir + '/web/js/'))
+    .on('finish', function () {
+      gulp.src(rootDir + '/web/js/bundle.js')
+        .pipe(preprocess({context: {NODE_ENV: isProduction ? 'production' : 'development'}}))
+        .pipe(gulp.dest(rootDir + '/web/js/'));
+    });
 }

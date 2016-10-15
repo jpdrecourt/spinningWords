@@ -9,8 +9,9 @@
   <div class='poemContainer'>
     <div id='poem'>Loading...</div>
   </div>
-  <!-- Remove 'vendors.js' in production -->
+  <!-- @if NODE_ENV='development' -->
   <script src="web/js/vendors.js"></script>
+  <!-- @endif -->
   <script src="web/js/bundle.js"></script>
 </div>
 </body>

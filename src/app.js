@@ -6,7 +6,9 @@
 // Dependencies
 // ----------------------------------------------------------------------------
 const $ = require('jquery');
-const createFps = require('fps-indicator'); // DEBUG
+// @if NODE_ENV='development'
+const createFps = require('fps-indicator');
+// @endif
 
 // Data
 // ----------------------------------------------------------------------------
@@ -312,12 +314,13 @@ $(document)
 // Display the poem
 
 $(document).ready(() => {
-  // FPS indicator // DEBUG
+  // @if NODE_ENV='development'
+  // FPS indicator
   let fps = createFps({
     updatePeriod: 500
   });
   fps.element.style.color = 'darkgrey';
-
+  // @endif
   // Divide the poem in verses
   $poem.html(versify(poem));
 

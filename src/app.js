@@ -50,10 +50,8 @@ let player = {
 // Currently destroying a planet
 let isPlanetDestroyed = false;
 // Background music
-let backgroundMusic = new howler.Howl({
-  src: [SOUND_DIR + 'fantasia.mp3', SOUND_DIR + 'fantasia.ogg'],
-  autoplay: true
-});
+let backgroundMusic;
+let planetSounds = [];
 
 // Visualisation Functions
 // ----------------------------------------------------------------------------
@@ -140,13 +138,6 @@ let createPlanets = () => {
     // Extract the words
     let verseWords = stringToWords(d.innerText);
     let verseLetters = wordsToLetters(verseWords);
-    let soundFileName = `${SOUND_DIR}mangled_verse${(i < 9) ? '0' : ''}${i + 1}`;
-    let sound = new howler.Howl({
-      'src': [soundFileName + '.mp3', soundFileName + '.ogg'],
-      'volume': 0.5,
-      'onplay': () => {backgroundMusic.fade(1.0, 0.7, 100);},
-      'onend': () => {backgroundMusic.fade(0.7, 1.0, 100);}
-    });
     // Extract the words position
     spanify($(d), verseWords, `verse${i}`);
     // FIXME: Offset between the flying words final position and the words in the poem
@@ -166,7 +157,7 @@ let createPlanets = () => {
       });
     });
     $thisPlanet.data({
-      'sound': sound,
+      'sound': planetSounds[i],
       'verse': $(d),
       'words': verseWords,
       'positions': wordPositions,
@@ -183,6 +174,27 @@ let createPlanets = () => {
 
 // Data processing functions
 // ---------------------------------------------------------------------------
+
+// Loading assets
+let loadAssets = (callback) => {
+  let count = 15;
+  let canPlay = () => {if (--count === 0) callback();};
+  backgroundMusic  = new howler.Howl({
+    src: [SOUND_DIR + 'fantasia.mp3', SOUND_DIR + 'fantasia.ogg'],
+    onload: canPlay
+  });
+  poem.forEach( (d, i) => {
+    let soundFileName = `${SOUND_DIR}mangled_verse${(i < 9) ? '0' : ''}${i + 1}`;
+    planetSounds[i] = new howler.Howl({
+      src: [soundFileName + '.mp3', soundFileName + '.ogg'],
+      onload: canPlay,
+      volume: 0.6,
+      onplay: () => {backgroundMusic.fade(1.0, 0.6, 200);},
+      onend: () => {backgroundMusic.fade(0.6, 1.0, 200);}
+    });
+  });
+
+};
 
 // Concatenate a string into an array of lowerccase words without punctuation
 // Keeps - and '
@@ -363,26 +375,29 @@ $(document)
 
 // Main execution
 // ----------------------------------------------------------------------------
+let main = () => {
+  $(document).ready(() => {
+    // @if NODE_ENV='development'
+    // FPS indicator
+    let fps = createFps({
+      updatePeriod: 500
+    });
+    fps.element.style.color = 'darkgrey';
+    // @endif
+    // Play the background sound
+    backgroundMusic.play();
+    // Divide the poem in verses
+    $poem.html(versify(poem));
+    // Create the planets
+    createPlanets();
+    // Create shooting star
+    // FIXME Magic number
+    $star = $newObject({'top': 100, 'left': 100}, 'star', '.poemContainer');
+    $star.data('velocity', {'x': 0, 'y': 0});
+    // Run Game
+    Game.run({update: update, render: render});
 
-$(document).ready(() => {
-  // @if NODE_ENV='development'
-  // FPS indicator
-  let fps = createFps({
-    updatePeriod: 500
   });
-  fps.element.style.color = 'darkgrey';
-  // @endif
-  // Play the background sound
+};
 
-  // Divide the poem in verses
-  $poem.html(versify(poem));
-  // Create the planets
-  createPlanets();
-  // Create shooting star
-  // FIXME Magic number
-  $star = $newObject({'top': 100, 'left': 100}, 'star', '.poemContainer');
-  $star.data('velocity', {'x': 0, 'y': 0});
-  // Run Game
-  Game.run({update: update, render: render});
-
-});
+loadAssets(main);

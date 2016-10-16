@@ -31,6 +31,28 @@ const KEY = {
 };
 // Assets
 const SOUND_DIR = './web/assets/sounds/';
+let SOUNDS = {
+  'backgroundMusic': SOUND_DIR + 'fantasia',
+  'mangledVerse1'  : SOUND_DIR + 'mangled_verse01',
+  'mangledVerse2'  : SOUND_DIR + 'mangled_verse02',
+  'mangledVerse3'  : SOUND_DIR + 'mangled_verse03',
+  'mangledVerse4'  : SOUND_DIR + 'mangled_verse04',
+  'mangledVerse5'  : SOUND_DIR + 'mangled_verse05',
+  'mangledVerse6'  : SOUND_DIR + 'mangled_verse06',
+  'mangledVerse7'  : SOUND_DIR + 'mangled_verse07',
+  'mangledVerse8'  : SOUND_DIR + 'mangled_verse08',
+  'mangledVerse9'  : SOUND_DIR + 'mangled_verse09',
+  'mangledVerse10' : SOUND_DIR + 'mangled_verse10',
+  'mangledVerse11' : SOUND_DIR + 'mangled_verse11',
+  'mangledVerse12' : SOUND_DIR + 'mangled_verse12',
+  'mangledVerse13' : SOUND_DIR + 'mangled_verse13',
+  'mangledVerse14' : SOUND_DIR + 'mangled_verse14'
+};
+let sounds = {};
+const IMG_DIR = './web/assets/img/';
+const IMG = {};
+let img = {};
+
 // Physics
 // TODO: Figure out the exact physics
 const DV = 1500, // Acceleration
@@ -49,9 +71,6 @@ let player = {
 };
 // Currently destroying a planet
 let isPlanetDestroyed = false;
-// Background music
-let backgroundMusic;
-let planetSounds = [];
 
 // Visualisation Functions
 // ----------------------------------------------------------------------------
@@ -157,7 +176,7 @@ let createPlanets = () => {
       });
     });
     $thisPlanet.data({
-      'sound': planetSounds[i],
+      'sound': sounds[`mangledVerse${i + 1}`],
       'verse': $(d),
       'words': verseWords,
       'positions': wordPositions,
@@ -177,23 +196,27 @@ let createPlanets = () => {
 
 // Loading assets
 let loadAssets = (callback) => {
-  let count = 15;
-  let canPlay = () => {if (--count === 0) callback();};
-  backgroundMusic  = new howler.Howl({
-    src: [SOUND_DIR + 'fantasia.mp3', SOUND_DIR + 'fantasia.ogg'],
-    onload: canPlay
-  });
-  poem.forEach( (d, i) => {
-    let soundFileName = `${SOUND_DIR}mangled_verse${(i < 9) ? '0' : ''}${i + 1}`;
-    planetSounds[i] = new howler.Howl({
-      src: [soundFileName + '.mp3', soundFileName + '.ogg'],
-      onload: canPlay,
-      volume: 0.6,
-      onplay: () => {backgroundMusic.fade(1.0, 0.6, 200);},
-      onend: () => {backgroundMusic.fade(0.6, 1.0, 200);}
+  let assetCount = Object.keys(SOUNDS).length + Object.keys(IMG).length;
+  // Loading sounds
+  let canPlay = () => {if (--assetCount === 0) callback();};
+  // General sound setup
+  $.each(SOUNDS, (key, value) => {
+    sounds[key] = new howler.Howl({
+      src: [value + '.mp3', value + '.ogg'],
+      onload: canPlay
     });
   });
-
+  // Specifics
+  $.each(sounds, (key, value) => {
+    if (key.startsWith('mangledVerse')) {
+      value
+        .volume(0.6)
+        .on('play', () => sounds.backgroundMusic.fade(1.0, 0.6, 200))
+        .on('end',  () => sounds.backgroundMusic.fade(0.6, 1.0, 200));
+    }
+  });
+  // Loading images
+  // TODO Loading image assets
 };
 
 // Concatenate a string into an array of lowerccase words without punctuation
@@ -385,7 +408,7 @@ let main = () => {
     fps.element.style.color = 'darkgrey';
     // @endif
     // Play the background sound
-    backgroundMusic.play();
+    sounds.backgroundMusic.play();
     // Divide the poem in verses
     $poem.html(versify(poem));
     // Create the planets

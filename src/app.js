@@ -10,16 +10,13 @@ const $ = require('jquery');
 const createFps = require('fps-indicator');
 // @endif
 const howler = require('howler');
-
 // Data
 // ----------------------------------------------------------------------------
 // Poem as a set of strings
 import {poem} from './data';
-
 // DOM elements
 // ----------------------------------------------------------------------------
 let $poem = $('#poem');
-
 // Constants
 // ----------------------------------------------------------------------------
 // Controls
@@ -55,13 +52,10 @@ const IMG = {};
 let img = {};
 // Planets apparition times in ms
 const PLANET_DISPLAY = [0, 2986, 6546, 10246, 12966, 17256, 19930, 23361, 27033, 30247, 34470, 38090, 42056, 45635];
-
 // Physics
 // TODO: Figure out the exact physics
 const DV = 1500, // Acceleration
   FRICTION = 2; // Friction coefficient
-
-
 // Global variables
 // ----------------------------------------------------------------------------
 // Spinning planets
@@ -74,99 +68,22 @@ let player = {
 };
 // Currently destroying a planet
 let isPlanetDestroyed = false;
-
 // Visualisation Functions
 // ----------------------------------------------------------------------------
-
-// Turns the poem array into divs with class 'verse'
-let versify = (arrayOfStrings) => {
-  return '<div class="verse">' +
-    arrayOfStrings.reduce((prev, curr) => {
-      return prev + '</div><div class="verse">' + curr;
-    }) + '</div>';
-};
-
-// Create a new moving object with a given initial position
-// as jquery coordinate and a class name. Returns a jQuery object
-let $newObject = (offset, objectClass='', parent='body') => {
-  return $('<div></div>')
-    .addClass(objectClass)
-    .css('position', 'absolute')
-    .offset(offset)
-    .appendTo(parent);
-};
-
-// Make the object orbit around a point as an jQuery coordinate object from its current position at a given orbital speed in frames - Direction 1 is clockwise.
-let orbitObject = ($object, centre, speed, direction = 1) => {
-  let dTheta = 2 * Math.PI / speed * direction,
-    origin = $object.offset();
-  $object.offset({
-    'left': centre.left +
-      (origin.left - centre.left) * Math.cos(dTheta) -
-      (origin.top - centre.top) * Math.sin(dTheta),
-    'top' : centre.top +
-      (origin.top - centre.top) * Math.cos(dTheta) +
-      (origin.left - centre.left) * Math.sin(dTheta)
-  });
-};
-
-// Create words at given coordinates
-let $createFlyingWord = (offset, word, parent = 'body') => {
-  return $newObject(offset, 'flyingWord', parent).text(word);
-};
-
-// Destroys the planet as a jquery object
-let destroyPlanet = ($p) => {
-  deactivateStar();
-  let currentOffset = $p.offset();
-  let $verse = $p.data('verse');
-  let wordPositions = $p.data('positions');
-  $p.data('sound').play();
-  planets.splice(planets.indexOf($p), 1);
-  $p.remove();
-  wordPositions.forEach((data) => {
-      let w = data.word;
-      let pos = data.offset;
-      let $flyingWord = $createFlyingWord(currentOffset, w, '.poemContainer');
-      $flyingWord.animate(pos, 2000, () => {
-        $flyingWord.remove();
-        $verse.css('opacity', 1);
-        activateStar();
-        if (planets.length === 0) {
-          playFinal();
-        }
-      });
-    });
-};
-
-// Desactivate star
-let deactivateStar = () => {
-  isPlanetDestroyed = true;
-  $star.addClass('dim');
-};
-
-// Activate star
+// Activating and deactivating the star
 let activateStar = () => {
   isPlanetDestroyed = false;
   $star.removeClass('dim');
 };
-
-// Calculate the distance between two two jQuery coordinate object
-let dist = (coord1, coord2) => {
-  return Math.sqrt(Math.pow(coord1.left - coord2.left, 2) +
-    Math.pow(coord1.top - coord2.top, 2));
+let deactivateStar = () => {
+  isPlanetDestroyed = true;
+  $star.addClass('dim');
 };
-
-// Calculate the max orbit radius according to current documents parameters
-let maxRadius = () => {
-  return Math.min($(document).width(), $(document).height()) * 0.8 / 2;
+// Create words at given coordinates
+let $createFlyingWord = (offset, word, parent = 'body') => {
+  return $newObject(offset, 'flyingWord', parent).text(word);
 };
-
-// Create a random HEX color (from CSS Tricks)
-let randomColor = () => {
-  return Math.floor(Math.random()*16777215).toString(16);
-};
-
+// Create the planets
 let createPlanets = () => {
   // Create one planet per verse
   $('.verse').each((i, d) => {
@@ -209,15 +126,65 @@ let createPlanets = () => {
     }, PLANET_DISPLAY[i], i, d);
   });
 };
-
-// Final scene
-let playFinal = () => {
-  sounds.fullPoem.play();
-}
-
+// Destroys the planet as a jquery object
+let destroyPlanet = ($p) => {
+  deactivateStar();
+  let currentOffset = $p.offset();
+  let $verse = $p.data('verse');
+  let wordPositions = $p.data('positions');
+  $p.data('sound').play();
+  planets.splice(planets.indexOf($p), 1);
+  $p.remove();
+  wordPositions.forEach((data) => {
+    let w = data.word;
+    let pos = data.offset;
+    let $flyingWord = $createFlyingWord(currentOffset, w, '.poemContainer');
+    $flyingWord.animate(pos, 2000, () => {
+      $flyingWord.remove();
+      $verse.css('opacity', 1);
+      activateStar();
+      if (planets.length === 0) {
+        playFinal();
+      }
+    });
+  });
+};
+// Create a new moving object with a given initial position
+// as jquery coordinate and a class name. Returns a jQuery object
+let $newObject = (offset, objectClass='', parent='body') => {
+  return $('<div></div>')
+  .addClass(objectClass)
+  .css('position', 'absolute')
+  .offset(offset)
+  .appendTo(parent);
+};
+// Make the object orbit around a point as an jQuery coordinate object from its current position at a given orbital speed in frames - Direction 1 is clockwise.
+let orbitObject = ($object, centre, speed, direction = 1) => {
+  let dTheta = 2 * Math.PI / speed * direction,
+  origin = $object.offset();
+  $object.offset({
+    'left': centre.left +
+    (origin.left - centre.left) * Math.cos(dTheta) -
+    (origin.top - centre.top) * Math.sin(dTheta),
+    'top' : centre.top +
+    (origin.top - centre.top) * Math.cos(dTheta) +
+    (origin.left - centre.left) * Math.sin(dTheta)
+  });
+};
+// Turns the poem array into divs with class 'verse'
+let versify = (arrayOfStrings) => {
+  return '<div class="verse">' +
+    arrayOfStrings.reduce((prev, curr) => {
+      return prev + '</div><div class="verse">' + curr;
+    }) + '</div>';
+};
 // Data processing functions
 // ---------------------------------------------------------------------------
-
+// Calculate the distance between two two jQuery coordinate object
+let dist = (coord1, coord2) => {
+  return Math.sqrt(Math.pow(coord1.left - coord2.left, 2) +
+  Math.pow(coord1.top - coord2.top, 2));
+};
 // Loading assets
 let loadAssets = (callback) => {
   let assetCount = Object.keys(SOUNDS).length + Object.keys(IMG).length;
@@ -234,34 +201,30 @@ let loadAssets = (callback) => {
   $.each(sounds, (key, value) => {
     if (key.startsWith('mangledVerse')) {
       value
-        .volume(0.6)
-        .on('play', () => sounds.backgroundMusic.fade(1.0, 0.6, 200))
-        .on('end',  () => sounds.backgroundMusic.fade(0.6, 1.0, 200));
+      .volume(0.6)
+      .on('play', () => sounds.backgroundMusic.fade(1.0, 0.6, 200))
+      .on('end',  () => sounds.backgroundMusic.fade(0.6, 1.0, 200));
     }
   });
   // Loading images
   // TODO Loading image assets
 };
-
-// Concatenate a string into an array of lowerccase words without punctuation
-// Keeps - and '
-let stringToWords = (string) => {
-  return string
-    .replace(/[^a-zA-Z0-9\'\-]+/g,' ')
-    // .toLowerCase()
-    .trim()
-    .split(' ');
+// Calculate the max orbit radius according to current documents parameters
+let maxRadius = () => {
+  return Math.min($(document).width(), $(document).height()) * 0.8 / 2;
 };
-
-// Turns an array of words into an array of all their letters with repetitions
-let wordsToLetters = (words) => {
-  let letters = [];
-  words.forEach( (word) => {
-    letters = letters.concat(word.split(''));
+// Extract the positions of each word in a given class created by spannify
+// and returns them in an array
+let spannifiedPositions = (spanClass) => {
+  let positions = [];
+  $(`.${spanClass}`).each((i, d) => {
+    positions.push({
+      'word': d.innerText,
+      'offset': $(d).offset()
+    });
   });
-  return letters;
+  return positions;
 };
-
 // Crawls the jquery $object and creates a span around each word of the word
 // list. The span gets one class [spanClass]
 let spanify = ($object, words, spanClass='word') => {
@@ -275,33 +238,33 @@ let spanify = ($object, words, spanClass='word') => {
     }));
   });
 };
-
-// Extracts unique values of the array
-let uniqueValues = (array) => {
-  return array.filter((v, i, a) => a.indexOf(v) === i);
+// Concatenate a string into an array of lowerccase words without punctuation
+// Keeps - and '
+let stringToWords = (string) => {
+  return string
+    .replace(/[^a-zA-Z0-9\'\-]+/g,' ')
+    // .toLowerCase()
+    .trim()
+    .split(' ');
 };
-
 // Outputs a random value in [val1, val2) or [0 val1( with one argument
 let randomValue = (val1, val2 = 0) => {
   return val1 + Math.random() * (val2 - val1);
 };
-
-// Extract the positions of each word in a given class created by spannify
-// and returns them in an array
-let spannifiedPositions = (spanClass) => {
-  let positions = [];
-  $(`.${spanClass}`).each((i, d) => {
-    positions.push({
-      'word': d.innerText,
-      'offset': $(d).offset()
-    });
-  });
-  return positions;
+// Extracts unique values of the array
+let uniqueValues = (array) => {
+  return array.filter((v, i, a) => a.indexOf(v) === i);
 };
-
+// Turns an array of words into an array of all their letters with repetitions
+let wordsToLetters = (words) => {
+  let letters = [];
+  words.forEach( (word) => {
+    letters = letters.concat(word.split(''));
+  });
+  return letters;
+};
 // Input management functions
 // ----------------------------------------------------------------------------
-
 // Key handling
 let onkey = (e, key, pressed) => {
   switch (key) {
@@ -311,7 +274,6 @@ let onkey = (e, key, pressed) => {
     case KEY.DOWN:  player.input.down  = pressed; e.preventDefault(); break;
   }
 };
-
 // Game management (inspired by http://codeincomplete.com/posts/javascript-game-foundations-the-game-loop/)
 // ----------------------------------------------------------------------------
 // All times in seconds
@@ -345,28 +307,23 @@ let Game = {
     requestAnimationFrame(frame);
   }
 };
-
-// Updating function
-let update = (step) => {
-  updatePlanets(step);
-  moveStar(step);
-  starCollision();
+// Calculate the centre of a jquery element
+let calculateCentre = ($elt) => {
+  let centre = $elt.offset();
+  centre.left += $elt.width() / 2;
+  centre.top += $elt.height() / 2;
+  return centre;
 };
-
-// Rendering function
-let render = (dt) => {
-  return;
+// Collision detection between two jquery elements looking like circles
+// Assumes equal width and height
+let collideCircle = ($elt1, $elt2) => {
+  return dist(calculateCentre($elt1), calculateCentre($elt2)) <
+    ($elt1.width() / 2 + $elt2.width() / 2);
 };
-
-let updatePlanets = (step) => {
-  planets.forEach(($p) => {
-    let centre = $p.data('centre');
-    let period = $p.data('period');
-    let direction = $p.data('direction');
-    orbitObject($p, centre, period/step, direction);
-  });
+// Final scene
+let playFinal = () => {
+  sounds.fullPoem.play();
 };
-
 // Star movement with drag according to http://stackoverflow.com/questions/667034/simple-physics-based-movement
 let moveStar = (step) => {
   let starVelocity = $star.data('velocity');
@@ -393,23 +350,38 @@ let moveStar = (step) => {
   starOffset.top += starVelocity.y * step;
   // Boundary counditions
   starOffset.left = Math.min(Math.max(starOffset.left, 0),
-    $(window).width() - $star.width());
+  $(window).width() - $star.width());
   starOffset.top = Math.min(Math.max(starOffset.top, 0),
-    $(window).height() - $star.height());
+  $(window).height() - $star.height());
   $star.offset(starOffset);
 };
-
+// Rendering function
+let render = (dt) => {
+  return;
+};
 // Collision detection between the star and the planets
 let starCollision = () => {
-  let starOffset = $star.offset();
   planets.forEach( ($p) => {
-    // FIXME Magic number + Proper collision
-    if (dist(starOffset, $p.offset()) < 40 && !isPlanetDestroyed) {
+    if (collideCircle($p, $star) && !isPlanetDestroyed) {
       destroyPlanet($p);
     }
   });
 };
-
+// Updating function
+let update = (step) => {
+  updatePlanets(step);
+  moveStar(step);
+  starCollision();
+};
+// Updating the planet according to its orbit
+let updatePlanets = (step) => {
+  planets.forEach(($p) => {
+    let centre = $p.data('centre');
+    let period = $p.data('period');
+    let direction = $p.data('direction');
+    orbitObject($p, centre, period/step, direction);
+  });
+};
 // Event listeners
 // ----------------------------------------------------------------------------
 $(document)
@@ -419,7 +391,6 @@ $(document)
   .keyup ( (e) => {
     return onkey(e, e.key.toLowerCase(), false);
   });
-
 // Main execution
 // ----------------------------------------------------------------------------
 let main = () => {
@@ -434,21 +405,21 @@ let main = () => {
     // Divide the poem in verses
     $poem.html(versify(poem));
     // Display the planets
-    sounds.anneHathawayMix.play();
-    sounds.anneHathawayMix.on('end', () => {
-      activateStar();
-    });
     createPlanets();
     // Create shooting star
     $star = $newObject({'top': $(document).height() / 2,
                         'left': $(document).width() / 2},
                        'star', '.poemContainer');
     $star.data('velocity', {'x': 0, 'y': 0});
-    deactivateStar();
+    // DEBUG
+    // deactivateStar();
+    // sounds.anneHathawayMix.play();
+    // sounds.anneHathawayMix.on('end', () => {
+    //   activateStar();
+    // });
     // Run Game
     Game.run({update: update, render: render});
 
   });
 };
-
 loadAssets(main);

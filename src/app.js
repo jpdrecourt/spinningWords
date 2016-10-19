@@ -32,7 +32,7 @@ const KEY = {
 // Assets
 const SOUND_DIR = './web/assets/sounds/';
 let SOUNDS = {
-  'backgroundMusic': SOUND_DIR + 'fantasia',
+  'anneHathawayMix': SOUND_DIR + 'anne_hathaway_final_mix',
   'mangledVerse1'  : SOUND_DIR + 'mangled_verse01',
   'mangledVerse2'  : SOUND_DIR + 'mangled_verse02',
   'mangledVerse3'  : SOUND_DIR + 'mangled_verse03',
@@ -46,12 +46,15 @@ let SOUNDS = {
   'mangledVerse11' : SOUND_DIR + 'mangled_verse11',
   'mangledVerse12' : SOUND_DIR + 'mangled_verse12',
   'mangledVerse13' : SOUND_DIR + 'mangled_verse13',
-  'mangledVerse14' : SOUND_DIR + 'mangled_verse14'
+  'mangledVerse14' : SOUND_DIR + 'mangled_verse14',
+  'fullPoem'       : SOUND_DIR + 'FullPoem'
 };
 let sounds = {};
 const IMG_DIR = './web/assets/img/';
 const IMG = {};
 let img = {};
+// Planets apparition times in ms
+const PLANET_DISPLAY = [0, 2986, 6546, 10246, 12966, 17256, 19930, 23361, 27033, 30247, 34470, 38090, 42056, 45635];
 
 // Physics
 // TODO: Figure out the exact physics
@@ -114,8 +117,7 @@ let $createFlyingWord = (offset, word, parent = 'body') => {
 
 // Destroys the planet as a jquery object
 let destroyPlanet = ($p) => {
-  isPlanetDestroyed = true;
-  $star.addClass('dim');
+  deactivateStar();
   let currentOffset = $p.offset();
   let $verse = $p.data('verse');
   let wordPositions = $p.data('positions');
@@ -129,10 +131,24 @@ let destroyPlanet = ($p) => {
       $flyingWord.animate(pos, 2000, () => {
         $flyingWord.remove();
         $verse.css('opacity', 1);
-        isPlanetDestroyed = false;
-        $star.removeClass('dim');
+        activateStar();
+        if (planets.length === 0) {
+          playFinal();
+        }
       });
     });
+};
+
+// Desactivate star
+let deactivateStar = () => {
+  isPlanetDestroyed = true;
+  $star.addClass('dim');
+};
+
+// Activate star
+let activateStar = () => {
+  isPlanetDestroyed = false;
+  $star.removeClass('dim');
 };
 
 // Calculate the distance between two two jQuery coordinate object
@@ -154,42 +170,50 @@ let randomColor = () => {
 let createPlanets = () => {
   // Create one planet per verse
   $('.verse').each((i, d) => {
-    // Extract the words
-    let verseWords = stringToWords(d.innerText);
-    let verseLetters = wordsToLetters(verseWords);
-    // Extract the words position
-    spanify($(d), verseWords, `verse${i}`);
-    // FIXME: Offset between the flying words final position and the words in the poem
-    let wordPositions = spannifiedPositions(`verse${i}`);
-    // Create a new planet
-    let offset = {
-      'top': $(document).height() / 2 + randomValue(-maxRadius(), maxRadius()),
-      'left': $(document).width() / 2 + randomValue(-maxRadius(), maxRadius())
-    };
-    let $thisPlanet = $newObject(offset, 'planet', '.poemContainer');
-    verseLetters.forEach( (l) => {
-      let $l = $(`<span class='letter'>${l}</span>`);
-      $thisPlanet.append($l);
-      $l.offset({
-        left: randomValue($thisPlanet.width()) + $thisPlanet.offset().left,
-        top: randomValue($thisPlanet.height()) + $thisPlanet.offset().top
+    setTimeout( (i, d) => {
+      // Extract the words
+      let verseWords = stringToWords(d.innerText);
+      let verseLetters = wordsToLetters(verseWords);
+      // Extract the words position
+      spanify($(d), verseWords, `verse${i}`);
+      // FIXME: Offset between the flying words final position and the words in the poem
+      let wordPositions = spannifiedPositions(`verse${i}`);
+      // Create a new planet
+      let offset = {
+        'top': $(document).height() / 2 + randomValue(30, maxRadius()),
+        'left': $(document).width() / 2 + randomValue(30, maxRadius())
+      };
+      let $thisPlanet = $newObject(offset, 'planet', '.poemContainer');
+      $thisPlanet.animate({'opacity': 1}, 1000);
+      verseLetters.forEach( (l) => {
+        let $l = $(`<span class='letter'>${l}</span>`);
+        $thisPlanet.append($l);
+        $l.offset({
+          left: randomValue($thisPlanet.width()) + $thisPlanet.offset().left,
+          top: randomValue($thisPlanet.height()) + $thisPlanet.offset().top
+        });
       });
-    });
-    $thisPlanet.data({
-      'sound': sounds[`mangledVerse${i + 1}`],
-      'verse': $(d),
-      'words': verseWords,
-      'positions': wordPositions,
-      'centre': {
-        'top': $(document).height() / 2,
-        'left': $(document).width() / 2
-      },
-      'direction': Math.floor(Math.random() * 2) * 2 - 1,
-      'period': randomValue(7, 9)
-    });
-    planets.push($thisPlanet);
+      $thisPlanet.data({
+        'sound': sounds[`mangledVerse${i + 1}`],
+        'verse': $(d),
+        'words': verseWords,
+        'positions': wordPositions,
+        'centre': {
+          'top': $(document).height() / 2,
+          'left': $(document).width() / 2
+        },
+        'direction': Math.floor(Math.random() * 2) * 2 - 1,
+        'period': randomValue(7, 9)
+      });
+      planets.push($thisPlanet);
+    }, PLANET_DISPLAY[i], i, d);
   });
 };
+
+// Final scene
+let playFinal = () => {
+  sounds.fullPoem.play();
+}
 
 // Data processing functions
 // ---------------------------------------------------------------------------
@@ -407,16 +431,20 @@ let main = () => {
     });
     fps.element.style.color = 'darkgrey';
     // @endif
-    // Play the background sound
-    sounds.backgroundMusic.play();
     // Divide the poem in verses
     $poem.html(versify(poem));
-    // Create the planets
+    // Display the planets
+    sounds.anneHathawayMix.play();
+    sounds.anneHathawayMix.on('end', () => {
+      activateStar();
+    });
     createPlanets();
     // Create shooting star
-    // FIXME Magic number
-    $star = $newObject({'top': 100, 'left': 100}, 'star', '.poemContainer');
+    $star = $newObject({'top': $(document).height() / 2,
+                        'left': $(document).width() / 2},
+                       'star', '.poemContainer');
     $star.data('velocity', {'x': 0, 'y': 0});
+    deactivateStar();
     // Run Game
     Game.run({update: update, render: render});
 

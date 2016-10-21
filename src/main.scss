@@ -53,10 +53,13 @@ body, html
   background: radial-gradient($star-color 10%, rgba(255, 255, 0, 0.0) 100%)
   /*transform: translate(-20px, -20px)*/
   z-index: 0
+
+.bright
+  opacity: 1
   box-shadow: 0 0 40px $star-color
 
 .dim
-  box-shadow: 0 0 0;
+  box-shadow: 0 0 20px $star-color
   opacity: 0.5
 
 /*.star::after

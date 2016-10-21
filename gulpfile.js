@@ -147,7 +147,9 @@ function bundleApp(isProduction) {
       presets: ['es2015']
     })
     .bundle()
-    .on('error', gutil.log)
+    .on('error', function (error) {
+      gutil.log(error);
+      this.emit('end');})
     .pipe(source('bundle.js'))
     .pipe(gulp.dest(rootDir + '/web/js/'))
     .on('finish', function () {

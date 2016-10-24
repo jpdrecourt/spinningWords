@@ -51,8 +51,9 @@ const IMG_DIR = './web/assets/img/';
 const IMG = {};
 let img = {};
 // Verse data
-const VERSE_STARTS = [0, 2986, 6546, 10146, 12966, 17256, 19930, 23361, 27033, 30247, 34470, 38090, 42056, 45635];
-const VERSE_LENGTHS = [2986, 3560, 3600, 2820, 4290, 2674, 3441, 3672, 3214, 4223, 3620, 3966, 3579, 4500];
+const VERSE_STARTS = [0, 2986, 6546, 10146, 12966, 16516, 19930, 23261, 27033, 30247, 34470, 38090, 42056, 45635];
+const VERSE_LENGTHS = [2986, 3560, 3600, 2820, 3550, 3404, 3441, 3772, 3214, 4223, 3620, 3966, 3579, 4500];
+//3504
 // Physics
 // TODO: Figure out the exact physics
 const DV = 1500, // Acceleration
@@ -88,7 +89,7 @@ let $createFlyingWord = (offset, word, parent = 'body') => {
 };
 // Create the planets
 let createPlanets = (callback) => {
-  const PLANET_DELAY = 25;
+  const PLANET_DELAY = 2500;
   setTimeout(callback, $('.verse').length * PLANET_DELAY);
   planetSoundSprites();
   // Create one planet per verse
@@ -428,11 +429,9 @@ let main = () => {
     // Display the planets
     createPlanets(() => {
       $star.css('visibility', 'visible');
-      // $star.animate({'opacity': 1}, 600);
       activateStar();});
     // Run Game
     Game.run({update: update, render: render});
-
   });
 };
 loadAssets(main);

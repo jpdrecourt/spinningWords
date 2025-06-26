@@ -16,7 +16,7 @@ Install the Node dependencies and start a development server using `gulp`:
 
 ```bash
 npm install
-gulp
+npx gulp
 ```
 
 The command above builds the site in `dev/` and launches a local web server with live reload.

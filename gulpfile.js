@@ -82,7 +82,11 @@ exports.default = series(parallel(scripts, copyHtml, sassTask, assetsTask), para
 
 function bundleApp(isProduction) {
   scriptsCount++;
+<<<<<<< codex/remove-gulp,-use-only-node.js
+  const rootDir = isProduction ? './docs' : './dev';
+=======
   let rootDir;
+>>>>>>> master
   const appBundler = browserify({
     entries: './src/app.js',
     debug: !isProduction
@@ -96,16 +100,32 @@ function bundleApp(isProduction) {
       .pipe(dest('./dev/web/js/'));
   }
 
+<<<<<<< codex/remove-gulp,-use-only-node.js
+  if (!isProduction) {
+    dependencies.forEach(function(dep) {
+      appBundler.external(dep);
+    });
+=======
   if (isProduction) {
     rootDir = './docs';
   } else {
     rootDir = './dev';
     dependencies.forEach(function(dep) { appBundler.external(dep); });
+>>>>>>> master
   }
 
   return appBundler
     .transform('babelify', { presets: ['es2015'] })
     .bundle()
+<<<<<<< codex/remove-gulp,-use-only-node.js
+    .on('error', function(error) {
+      gutil.log(error);
+      this.emit('end');
+    })
+    .pipe(source('bundle.js'))
+    .pipe(preprocess({ context: { NODE_ENV: isProduction ? 'production' : 'development' } }))
+    .pipe(dest(rootDir + '/web/js/'));
+=======
     .on('error', function(error) { gutil.log(error); this.emit('end'); })
     .pipe(source('bundle.js'))
     .pipe(dest(rootDir + '/web/js/'))
@@ -114,4 +134,5 @@ function bundleApp(isProduction) {
         .pipe(preprocess({ context: { NODE_ENV: isProduction ? 'production' : 'development' } }))
         .pipe(dest(rootDir + '/web/js/'));
     });
+>>>>>>> master
 }

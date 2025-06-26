@@ -90,11 +90,13 @@ function bundleApp(isProduction) {
   });
 
   if (!isProduction && scriptsCount === 1) {
-    browserify({ require: dependencies, debug: true })
+    const vendorStream = browserify({ require: dependencies, debug: true })
       .bundle()
       .on('error', gutil.log)
       .pipe(source('vendors.js'))
-      .pipe(dest('./dev/web/js/'));
+      .pipe(buffer());
+
+    vendorStream.pipe(dest('./dev/web/js/'));
   }
 
   if (!isProduction) {
@@ -103,7 +105,7 @@ function bundleApp(isProduction) {
     });
   }
 
-  return appBundler
+  const bundleStream = appBundler
     .transform('babelify', { presets: ['es2015'] })
     .bundle()
     .on('error', function(error) {
@@ -111,7 +113,9 @@ function bundleApp(isProduction) {
       this.emit('end');
     })
     .pipe(source('bundle.js'))
-    .pipe(buffer())
+    .pipe(buffer());
+
+  return bundleStream
     .pipe(preprocess({ context: { NODE_ENV: isProduction ? 'production' : 'development' } }))
     .pipe(dest(rootDir + '/web/js/'));
 }

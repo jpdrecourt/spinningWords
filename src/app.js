@@ -260,8 +260,12 @@ let stringToWords = (string) => {
     .split(' ');
 };
 // Outputs a random value in [val1, val2) or [0 val1( with one argument
-let randomValue = (val1, val2 = 0) => {
-  return val1 + Math.random() * (val2 - val1);
+let randomValue = (val1, val2 = null) => {
+  if (val2 === null) {
+    val2 = val1;
+    val1 = 0;
+  }
+  return Math.random() * (val2 - val1) + val1;
 };
 // Extracts unique values of the array
 let uniqueValues = (array) => {

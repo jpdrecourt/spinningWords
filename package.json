@@ -23,7 +23,8 @@
     "gulp-sass": "^5.1.0",
     "sass": "^1.69.5",
     "gulp-sym": "0.0.14",
-    "gulp-util": "^3.0.7",
+    "fancy-log": "^2.0.0",
+    "plugin-error": "^1.0.1",
     "gulp-webserver": "^0.9.1",
     "vinyl-source-stream": "^1.1.0",
     "vinyl-buffer": "^1.0.1"

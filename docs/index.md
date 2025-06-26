@@ -27,11 +27,11 @@ To create a production build run:
 npm run deploy
 ```
 
-This executes `gulp deploy` and outputs the site in the `docs/` directory.
+This executes `gulp deploy` and outputs the site in the `dist/` directory.
 
 ### GitHub Pages
 
-GitHub Pages is automatically deployed using the included GitHub Actions workflow. The workflow builds the project and publishes the generated `docs/` folder.
+Commit the contents of the generated `dist/` folder and push them to your repository. Then enable GitHub Pages from your repository settings by selecting the `dist/` directory on your main branch as the publishing source.
 
 [1]:http://www.scottishpoetrylibrary.org.uk/poetry/poems/anne-hathaway
 [2]:https://open.spotify.com/track/5tJ1L1iFP2WRMBPN1gdlTG

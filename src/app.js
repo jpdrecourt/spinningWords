@@ -6,7 +6,7 @@
 // Dependencies
 // ----------------------------------------------------------------------------
 import $ from 'jquery';
-import createFps from 'fps-indicator';
+let createFps;
 import { Howl } from 'howler';
 // Data
 // ----------------------------------------------------------------------------
@@ -413,10 +413,13 @@ $(document)
 let main = () => {
   $(document).ready(() => {
     if (import.meta.env.DEV) {
-      const fps = createFps({
-        updatePeriod: 500
+      import('fps-indicator').then(mod => {
+        createFps = mod.default;
+        const fps = createFps({
+          updatePeriod: 500
+        });
+        fps.element.style.color = 'darkgrey';
       });
-      fps.element.style.color = 'darkgrey';
     }
     // Divide the poem in verses
     $poem.html(versify(poem));

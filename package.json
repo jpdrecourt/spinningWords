@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp deploy && rm -rf docs && mv dist docs"
+    "build": "gulp deploy"
   },
   "author": "Jean-Philippe Drecourt",
   "license": "ISC",
@@ -18,7 +18,7 @@
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
     "fps-indicator": "^1.0.2",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-autoprefixer": "^3.1.1",
     "gulp-preprocess": "^2.0.0",
     "gulp-sass": "^5.1.0",
@@ -26,7 +26,8 @@
     "gulp-sym": "0.0.14",
     "gulp-util": "^3.0.7",
     "gulp-webserver": "^0.9.1",
-    "vinyl-source-stream": "^1.1.0"
+    "vinyl-source-stream": "^1.1.0",
+    "vinyl-buffer": "^1.0.1"
   },
   "dependencies": {
     "howler": "^2.0.1",

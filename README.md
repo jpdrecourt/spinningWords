@@ -24,7 +24,7 @@ The command above builds the site in `dev/` and launches a local web server with
 To create a production build run:
 
 ```bash
-npm run deploy
+npm run build
 ```
 
 This executes `gulp deploy` and outputs the site in the `docs/` directory.

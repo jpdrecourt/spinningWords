@@ -1,7 +1,8 @@
 const fs = require('fs');
 const gulp = require('gulp');
 const { src, dest, series, parallel, watch } = gulp;
-const gutil = require('gulp-util');
+const log = require('fancy-log');
+const PluginError = require('plugin-error');
 const browserify = require('browserify');
 const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
@@ -92,7 +93,9 @@ function bundleApp(isProduction) {
   if (!isProduction && scriptsCount === 1) {
     browserify({ require: dependencies, debug: true })
       .bundle()
-      .on('error', gutil.log)
+      .on('error', function(err) {
+        log(new PluginError('bundleApp', err));
+      })
       .pipe(source('vendors.js'))
       .pipe(dest('./dev/web/js/'));
   }
@@ -107,7 +110,7 @@ function bundleApp(isProduction) {
     .transform('babelify', { presets: ['es2015'] })
     .bundle()
     .on('error', function(error) {
-      gutil.log(error);
+      log(new PluginError('bundleApp', error));
       this.emit('end');
     })
     .pipe(source('bundle.js'))

@@ -35,3 +35,7 @@ Commit the contents of the generated `dist/` folder and push them to your reposi
 
 [1]:http://www.scottishpoetrylibrary.org.uk/poetry/poems/anne-hathaway
 [2]:https://open.spotify.com/track/5tJ1L1iFP2WRMBPN1gdlTG
+
+## License
+
+[ISC](LICENSE)

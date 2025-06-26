@@ -5,11 +5,9 @@
 
 // Dependencies
 // ----------------------------------------------------------------------------
-const $ = require('jquery');
-// @if NODE_ENV='development'
-const createFps = require('fps-indicator');
-// @endif
-const howler = require('howler');
+import $ from 'jquery';
+import createFps from 'fps-indicator';
+import { Howl } from 'howler';
 // Data
 // ----------------------------------------------------------------------------
 // Poem as a set of strings
@@ -213,7 +211,7 @@ let loadAssets = (callback) => {
   let canPlay = () => {if (--assetCount === 0) callback();};
   // General sound setup
   $.each(SOUNDS, (key, value) => {
-    sounds[key] = new howler.Howl({
+    sounds[key] = new Howl({
       src: [value + '.mp3', value + '.ogg'],
       onload: canPlay
     });
@@ -414,13 +412,12 @@ $(document)
 // ----------------------------------------------------------------------------
 let main = () => {
   $(document).ready(() => {
-    // @if NODE_ENV='development'
-    // FPS indicator
-    let fps = createFps({
-      updatePeriod: 500
-    });
-    fps.element.style.color = 'darkgrey';
-    // @endif
+    if (import.meta.env.DEV) {
+      const fps = createFps({
+        updatePeriod: 500
+      });
+      fps.element.style.color = 'darkgrey';
+    }
     // Divide the poem in verses
     $poem.html(versify(poem));
     // Create shooting star

@@ -4,7 +4,9 @@
   "description": "Sound art for lovers",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp deploy"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "author": "Jean-Philippe Drecourt",
   "license": "ISC",
@@ -13,24 +15,13 @@
     "url": "https://github.com/jpdrecourt/spinningWords.git"
   },
   "devDependencies": {
-    "babel-preset-es2015": "^6.14.0",
-    "babelify": "^7.3.0",
-    "browserify": "^13.1.0",
-    "fps-indicator": "^1.0.2",
-    "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^3.1.1",
-    "gulp-preprocess": "^2.0.0",
-    "gulp-sass": "^5.1.0",
+    "vite": "^5.2.0",
     "sass": "^1.69.5",
-    "gulp-sym": "0.0.14",
-    "fancy-log": "^2.0.0",
-    "plugin-error": "^1.0.1",
-    "gulp-webserver": "^0.9.1",
-    "vinyl-source-stream": "^1.1.0",
-    "vinyl-buffer": "^1.0.1"
+    "autoprefixer": "^10.4.14"
   },
   "dependencies": {
     "howler": "^2.0.1",
-    "jquery": "^3.1.1"
+    "jquery": "^3.1.1",
+    "fps-indicator": "^1.0.2"
   }
 }

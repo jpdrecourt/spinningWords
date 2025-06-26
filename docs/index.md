@@ -12,11 +12,11 @@ Final recording of the poem by the author. Background music: [Fantasia by Robert
 
 ## Setup
 
-Install the Node dependencies and start a development server using `gulp`:
+Install the Node dependencies and start a development server using `vite`:
 
 ```bash
 npm install
-gulp
+npm run dev
 ```
 
 The command above builds the site in `dev/` and launches a local web server with live reload.
@@ -27,7 +27,7 @@ To create a production build run:
 npm run build
 ```
 
-This executes `gulp deploy` and outputs the site in the `docs/` directory.
+This executes `vite build` and outputs the site in the `docs/` directory.
 
 ### GitHub Pages
 

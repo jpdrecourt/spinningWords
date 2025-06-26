@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "gulp deploy",
-    "start": "gulp"
+    "build": "gulp deploy && rm -rf docs && mv dist docs"
   },
   "author": "Jean-Philippe Drecourt",
   "license": "ISC",

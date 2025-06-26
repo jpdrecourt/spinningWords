@@ -71,11 +71,11 @@ gulp.task('webserver', ['scripts', 'copy-html', 'sass', 'assets'], function() {
     }));
 });
 // Deployment task - Bundle everything into one script and copy HTML pages
-// Destination directory: ./dist
+// Destination directory: ./docs
 gulp.task('deploy', function() {
   gulp.src(htmlPages)
     .pipe(preprocess({context: {NODE_ENV: 'production'}}))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('docs'));
   gulp.src(scssPages)
     .pipe(sass({
       indentedSyntax: true
@@ -84,9 +84,10 @@ gulp.task('deploy', function() {
       browsers: ['last 15 versions', '> 1%', 'ie 8', 'ie 7'],
       cascade: true
     }))
-    .pipe(gulp.dest('dist/web/css'));
+    .pipe(gulp.dest('docs/web/css'));
   gulp.src(['./assets/**/*'])
-    .pipe(gulp.dest('./dist/web/assets'));
+    .pipe(gulp.dest('./docs/web/assets'));
+  fs.writeFileSync('docs/.nojekyll', '');
   bundleApp(true);
 });
 
@@ -106,7 +107,7 @@ gulp.task('default', ['scripts', 'copy-html', 'sass', 'webserver', 'watch']);
 function bundleApp(isProduction) {
   scriptsCount++;
   // Root directory for the compiled files
-  // In production, copies the full devsite structure into dist.
+  // In production, copies the full devsite structure into docs.
   var rootDir;
   // Use browserify to bundle all the js files together to use them in the
   // front end
@@ -129,7 +130,7 @@ function bundleApp(isProduction) {
       .pipe(gulp.dest('./dev/web/js/'));
   }
   if (isProduction) {
-    rootDir = './dist';
+    rootDir = './docs';
     // Copy all the HTML files there to ease copying
 
   } else {

@@ -408,6 +408,31 @@ $(document)
   .keyup ( (e) => {
     return onkey(e, e.key.toLowerCase(), false);
   });
+
+// Modal handling
+// ----------------------------------------------------------------------------
+let setupModal = () => {
+  const modal = document.getElementById('creditsModal');
+  const btn = document.getElementById('creditsBtn');
+  const span = document.getElementsByClassName('close')[0];
+
+  // Open modal
+  btn.onclick = () => {
+    modal.style.display = 'block';
+  };
+
+  // Close modal on X click
+  span.onclick = () => {
+    modal.style.display = 'none';
+  };
+
+  // Close modal when clicking outside
+  window.onclick = (event) => {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+    }
+  };
+};
 // Main execution
 // ----------------------------------------------------------------------------
 let main = () => {
@@ -421,6 +446,8 @@ let main = () => {
         fps.element.style.color = 'darkgrey';
       });
     }
+    // Setup modal
+    setupModal();
     // Divide the poem in verses
     $poem.html(versify(poem));
     // Create shooting star
@@ -428,8 +455,8 @@ let main = () => {
     'left': $(document).width() / 2},
     'star', '.poemContainer')
       .data('velocity', {'x': 0, 'y': 0})
-      .css('visibility', 'hidden');
-    deactivateStar();
+      .css('visibility', 'visible');
+    activateStar();
     // Display the planets
     createPlanets(() => {
       $star.css('visibility', 'visible');

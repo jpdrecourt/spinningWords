@@ -47,20 +47,20 @@ body, html
 
 .star
   position: absolute
-  width: 40px
-  height: 40px
+  width: 60px
+  height: 60px
   border-radius: 50%
-  background: radial-gradient($star-color 10%, rgba(255, 255, 0, 0.0) 100%)
+  background: radial-gradient($star-color 20%, rgba(255, 255, 0, 0.3) 100%)
   /*transform: translate(-20px, -20px)*/
   z-index: 0
 
 .bright
   opacity: 1
-  box-shadow: 0 0 40px $star-color
+  box-shadow: 0 0 60px $star-color
 
 .dim
-  box-shadow: 0 0 20px $star-color
-  opacity: 0.5
+  box-shadow: 0 0 30px $star-color
+  opacity: 0.7
 
 /*.star::after
   position: absolute
@@ -84,3 +84,81 @@ body, html
   font-size: 1.5em
   color: lightgrey
   position: relative
+
+// Credits button
+.credits-button
+  position: fixed
+  bottom: 20px
+  right: 20px
+  background: rgba(255, 255, 0, 0.2)
+  border: 1px solid yellow
+  color: yellow
+  padding: 10px 20px
+  border-radius: 5px
+  cursor: pointer
+  font-family: helvetica, sans-serif
+  font-size: 14px
+  z-index: 100
+  transition: all 0.3s ease
+
+  &:hover
+    background: rgba(255, 255, 0, 0.4)
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5)
+
+// Modal styles
+.modal
+  display: none
+  position: fixed
+  z-index: 1000
+  left: 0
+  top: 0
+  width: 100%
+  height: 100%
+  overflow: auto
+  background-color: rgba(0, 0, 0, 0.9)
+
+.modal-content
+  background-color: black
+  margin: 5% auto
+  padding: 40px
+  border: 2px solid yellow
+  border-radius: 10px
+  width: 80%
+  max-width: 700px
+  color: white
+  box-shadow: 0 0 40px rgba(255, 255, 0, 0.3)
+
+  h1
+    color: yellow
+    margin-bottom: 20px
+    font-size: 2em
+
+  h2
+    color: yellow
+    margin-top: 30px
+    margin-bottom: 15px
+    font-size: 1.3em
+
+  p
+    margin-bottom: 15px
+    line-height: 1.6
+
+  a
+    color: yellow
+    text-decoration: none
+
+    &:hover
+      text-decoration: underline
+
+.close
+  color: yellow
+  float: right
+  font-size: 32px
+  font-weight: bold
+  cursor: pointer
+  line-height: 20px
+
+  &:hover,
+  &:focus
+    color: white
+    text-decoration: none

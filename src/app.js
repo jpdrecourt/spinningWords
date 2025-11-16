@@ -25,7 +25,7 @@ const KEY = {
   UP: 'q'
 };
 // Assets
-const SOUND_DIR = './web/assets/sounds/';
+const SOUND_DIR = '/assets/sounds/';
 let SOUNDS = {
   'anneHathawayMix': SOUND_DIR + 'anne_hathaway_final_mix',
   'mangledVerse1'  : SOUND_DIR + 'mangled_verse01',
@@ -45,7 +45,7 @@ let SOUNDS = {
   'fullPoem'       : SOUND_DIR + 'FullPoem'
 };
 let sounds = {};
-const IMG_DIR = './web/assets/img/';
+const IMG_DIR = '/assets/img/';
 const IMG = {};
 let img = {};
 // Verse data
